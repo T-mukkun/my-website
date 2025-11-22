@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>向畑　毅　Tsuyoshi Mukaihata | Research Portfolio</title>
+  <title>Research Portfolio | Tsuyoshi Mukaihata</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -33,26 +33,37 @@
   <main class="max-w-5xl mx-auto px-4 pt-8 md:pt-12">
     
     <!-- ヘッダーエリア -->
-    <header class="flex flex-col md:flex-row items-start md:items-center gap-6 mb-12">
+    <header class="flex flex-col md:flex-row items-start md:items-center gap-6 mb-12 border-b border-slate-200 pb-8">
       <!-- 写真（四角） -->
-      <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-4 border-white shadow-lg overflow-hidden flex-shrink-0 bg-gray-200">
+      <div class="w-28 h-28 md:w-32 md:h-32 rounded-xl border-4 border-white shadow-lg overflow-hidden flex-shrink-0 bg-gray-200">
            <!-- GitHubにアップロードした profile.jpg を読み込みます -->
            <img src="profile.jpg" alt="向畑 毅" class="w-full h-full object-cover">
       </div>
       
-      <div class="flex-1 w-full py-2">
+      <div class="flex-1 w-full py-1">
         <div class="mb-4">
-          <h1 class="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight mb-2">
-            向畑　毅 
+          <!-- 
+             【サイトのタイトルエリア】
+             決定したタイトルを配置しました。
+          -->
+          <h1 class="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight leading-snug">
+            笑顔あふれる社会に向け、<br class="hidden md:block" />人を支える看護研究の実装を考える
           </h1>
-          <p class="text-slate-500 font-medium">
-            看護師 / 保健学博士 <span class="text-slate-300 mx-2">|</span> 兵庫医科大学
-          </p>
+          <p class="text-sm text-slate-400 mt-2">Affective Care & Sound Technology Research</p>
         </div>
         
-        <div class="text-sm text-slate-400 bg-white/50 inline-block px-3 py-1 rounded-lg">
-          Tsuyoshi Mukaihata, Ph.D. in Health Sciences
-        </div>
+        <!-- 
+             【名前と肩書きエリア】
+        -->
+        <p class="text-slate-600 text-sm md:text-base flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span class="font-bold text-slate-900 text-lg">向畑 毅</span>
+          <span class="text-slate-300 hidden md:inline">|</span>
+          <span>看護師</span>
+          <span class="text-slate-300">/</span>
+          <span>保健学博士</span>
+          <span class="text-slate-300">|</span>
+          <span>兵庫医科大学</span>
+        </p>
       </div>
     </header>
 
@@ -69,6 +80,10 @@
           <h2 class="serif text-2xl font-bold text-slate-800 mb-6">Research Focus</h2>
           
           <div class="prose prose-slate max-w-none">
+            <!-- 
+                 本文のキャッチコピーも、タイトルと響き合うように
+                 「笑顔」を意識したトーンで整えています。
+            -->
             <p class="text-lg leading-relaxed text-slate-700 mb-6 font-bold">
               人の心とテクノロジーの力で、ケアの現場に新たな価値を。
             </p>
@@ -99,25 +114,22 @@
       <!-- サイドカラム（右側）：基本情報とリンク -->
       <aside class="md:col-span-4 space-y-6">
         
+        <!-- Contact & Works -->
         <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
-          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Affiliation</h3>
-          <p class="font-bold text-slate-800">兵庫医科大学</p>
-          <p class="text-xs text-slate-500 mb-4">Hyogo Medical University</p>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Contact & Works</h3>
           
-          <hr class="border-slate-100 my-4">
-          
-          <!-- コンタクト＆Researchmapリンク -->
           <div class="space-y-3">
             <a href="mailto:tsu-mukaihata@hyo-med.ac.jp" class="flex items-center gap-2 text-sm text-slate-600 hover:text-teal-600 transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-              <span>Contact Email</span>
+              <span>tsu-mukaihata@...</span>
             </a>
             
             <!-- Researchmapボタン -->
-            <a href="https://researchmap.jp/hata-bou" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 w-full py-2 bg-white border border-slate-300 rounded-lg text-slate-700 text-sm font-bold hover:bg-slate-50 transition">
+            <a href="https://researchmap.jp/hata-bou" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 w-full py-3 bg-white border border-slate-300 rounded-lg text-slate-700 text-sm font-bold hover:bg-slate-50 transition group">
                <span>Researchmap</span>
-               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-400 group-hover:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
             </a>
+             <p class="text-xs text-slate-400 text-center mt-2">※ 論文・業績リストはこちら</p>
           </div>
         </div>
 
