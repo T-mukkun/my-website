@@ -114,20 +114,35 @@
           </p>
         </div>
 
-        <!-- 
-             【修正完了】Diaryエリア
-             リンク先を「研究ブログ」の正しいURLに修正しました
-        -->
+        <!-- Diaryエリア -->
         <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm bg-gradient-to-br from-white to-slate-50">
-          <h2 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+          <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span class="text-2xl">🎨</span> 
             Diary
           </h2>
+          
+          <!-- 
+               【重要】漫画表示エリア (最強版)
+               manga.jpg -> manga.png -> manga.jpg.png の順に探します。
+               これでiPadからアップロードしても安心です。
+          -->
+          <div class="mb-4 rounded-lg overflow-hidden border border-slate-200 shadow-sm bg-slate-100 min-h-[120px] flex items-center justify-center">
+             <img src="manga.jpg" alt="最新の4コマ漫画" class="w-full h-auto object-cover" 
+             onerror="
+               // 1. manga.jpgがなければ manga.png を試す
+               if (this.src.match(/manga\.jpg$/)) { this.src = 'manga.png'; } 
+               // 2. manga.pngもなければ manga.jpg.png (iPadあるある) を試す
+               else if (this.src.match(/manga\.png$/)) { this.src = 'manga.jpg.png'; }
+               // 3. それもなければ COMING SOON を表示
+               else { this.style.display='none'; this.parentNode.innerHTML='<div class=\'text-center text-slate-400\'><span class=\'text-2xl block mb-2 opacity-50\'>☕</span><span class=\'text-xs font-bold tracking-widest\'>COMING SOON</span></div>'; }
+             ">
+          </div>
+
           <p class="text-slate-600 text-xs mb-4 leading-relaxed">
             日々の気づきを気が向いたときに記録しています。
           </p>
           
-          <!-- Researchmapブログボタン (日本語URL対応) -->
+          <!-- Researchmapブログボタン -->
           <a href="https://researchmap.jp/hata-bou/%E7%A0%94%E7%A9%B6%E3%83%96%E3%83%AD%E3%82%B0" target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-teal-200 transition group w-full">
             <!-- アイコン -->
             <div class="w-10 h-10 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center text-slate-500 shadow-inner group-hover:bg-teal-50 group-hover:text-teal-600 transition">
