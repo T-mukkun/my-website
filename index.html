@@ -14,7 +14,7 @@
   <style>
     body {
       font-family: 'Noto Sans JP', sans-serif;
-      background-color: #f8fafc;
+      background-color: #F0F8FA; /* ソフトなペールブルーに変更 */
       color: #334155;
     }
     .serif {
@@ -26,6 +26,16 @@
       border-radius: 16px;
       box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.05), 0 10px 20px -2px rgba(0, 0, 0, 0.02);
     }
+    /* 新しい横並びコンテナ用のフレックス調整 */
+    @media (min-width: 768px) {
+      .flex-container {
+        display: flex;
+        gap: 20px; /* 隙間を少し広げた */
+      }
+      .flex-item {
+        flex: 1 1 50%; /* 2つを均等に横並びにする */
+      }
+    }
   </style>
 </head>
 <body class="antialiased pb-12">
@@ -35,10 +45,10 @@
     <!-- ヘッダーエリア -->
     <header class="flex flex-col md:flex-row items-start md:items-center gap-8 mb-12 border-b border-slate-200 pb-8">
       <!-- 写真（横長長方形：高さ75%） -->
-      <div class="w-56 h-40 md:w-64 md:h-48 rounded-2xl border-4 border-white shadow-lg overflow-hidden flex-shrink-0 bg-gray-200 flex items-center justify-center text-gray-400">
+      <!-- 修正: 幅を w-64 (モバイル) と md:w-80 (デスクトップ) に拡張 -->
+      <div class="w-64 h-40 md:w-80 md:h-48 rounded-2xl border-4 border-white shadow-lg overflow-hidden flex-shrink-0 bg-gray-200 flex items-center justify-center text-gray-400">
            <!-- GitHubにある profile.jpg を読み込みます -->
-           <img src="profile.jpg" alt="向畑 毅" class="w-full h-full object-cover" onerror="this.style.display='none';">
-           <span class="text-xs absolute">Photo</span>
+           <img src="profile.jpg" alt="向畑 毅" class="w-full h-full object-cover">
       </div>
       
       <div class="flex-1 w-full py-1">
@@ -66,70 +76,57 @@
 
 
     <!-- コンテンツグリッド -->
-    <div class="grid md:grid-cols-12 gap-8">
+    <div class="space-y-8">
       
-      <!-- メインカラム（左側）：研究の「深掘り」エリア -->
-      <div class="md:col-span-8 space-y-8">
+      <!-- 【新規追加】About this site (色: 濃い青) -->
+      <section class="content-card p-6 bg-slate-800 text-slate-300 shadow-md">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">About this site</h3>
+        <p class="text-sm leading-relaxed">
+          このサイトは、向畑毅の研究活動の背景や詳細なプロセスをアーカイブするために運営されています。
+        </p>
+      </section>
+
+      <!-- Vision / Research Focus (横目一杯に拡張) -->
+      <section class="content-card p-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
+        <h2 class="serif text-2xl font-bold text-slate-800 mb-6">Research Focus</h2>
         
-        <!-- Vision / Research Focus -->
-        <section class="content-card p-8 relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
-          <h2 class="serif text-2xl font-bold text-slate-800 mb-6">Research Focus</h2>
+        <div class="prose prose-slate max-w-none">
+          <p class="text-lg leading-relaxed text-slate-700 mb-6 font-bold">
+            人の心とテクノロジーの力で、ケアの現場に新たな価値を。
+          </p>
           
-          <div class="prose prose-slate max-w-none">
-            <p class="text-lg leading-relaxed text-slate-700 mb-6 font-bold">
-              人の心とテクノロジーの力で、ケアの現場に新たな価値を。
-            </p>
-            
-            <p class="text-slate-600 leading-relaxed mb-4">
-              これまでの研究活動を通じて積み重ねてきた知見を、論文や学会発表にとどめず、実際の社会や医療現場へと還元していくフェーズに入りました。現在は、基礎研究の成果を社会実装につなげるための実証実験や、新たなケアシステムの構築に向けた準備を進めています。
-            </p>
-            
-            <p class="text-sm text-slate-500 mt-6 border-t border-slate-100 pt-4">
-              ※ 現在進行中の新規プロジェクトに関する詳細は、準備が整い次第、本サイトにて公開予定です。
-            </p>
-          </div>
-        </section>
-
-        <!-- Updates -->
-        <section class="content-card p-8">
-          <h2 class="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Project Updates</h2>
-          <ul class="space-y-4">
-             <li class="flex gap-4">
-               <span class="text-sm font-bold text-teal-600 w-24 flex-shrink-0">2025.01</span>
-               <span class="text-sm text-slate-600">研究プロジェクトの紹介サイトとして、本ページを開設しました。</span>
-             </li>
-          </ul>
-        </section>
-
-      </div>
-
-      <!-- サイドカラム（右側） -->
-      <aside class="md:col-span-4 space-y-6">
-        
-        <!-- About this site -->
-        <div class="bg-slate-800 text-slate-300 rounded-xl p-6 shadow-md">
-          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">About this site</h3>
-          <p class="text-xs leading-relaxed">
-            このサイトは、向畑毅の研究活動の背景や詳細なプロセスをアーカイブするために運営されています。
+          <p class="text-slate-600 leading-relaxed mb-4">
+            これまでの研究活動を通じて積み重ねてきた知見を、論文や学会発表にとどめず、実際の社会や医療現場へと還元していくフェーズに入りました。現在は、基礎研究の成果を社会実装につなげるための実証実験や、新たなケアシステムの構築に向けた準備を進めています。
+          </p>
+          
+          <p class="text-sm text-slate-500 mt-6 border-t border-slate-100 pt-4">
+            ※ 現在進行中の新規プロジェクトに関する詳細は、準備が整い次第、本サイトにて公開予定です。
           </p>
         </div>
+      </section>
 
-        <!-- Diaryエリア -->
-        <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm bg-gradient-to-br from-white to-slate-50">
+      <!-- 【修正】横並びエリア: Diary と Project Updates -->
+      <div class="flex-container">
+
+        <!-- 1. Diaryエリア (左側) -->
+        <div class="flex-item content-card p-6 border border-slate-100 shadow-sm bg-gradient-to-br from-white to-slate-50">
           
-          <!-- (1) Diary Title -->
-          <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <span class="text-2xl">🎨</span> 
-            Diary
-          </h2>
+          <!-- Researchmapブログボタン -->
+          <a href="https://researchmap.jp/hata-bou/%E7%A0%94%E7%A9%B6%E3%83%96%E3%83%AD%E3%82%B0" target="_blank" rel="noopener" class="flex items-center justify-center gap-3 px-5 py-3 bg-gray-600 text-white rounded-xl shadow-md hover:bg-gray-700 transition group w-full mb-4 font-bold text-sm">
+            <!-- アイコン -->
+            <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white shadow-inner">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            </div>
+            Diaryを読む
+          </a>
           
-          <!-- (2) Description -->
-          <p class="text-slate-600 text-xs mb-4 leading-relaxed">
-            日々の気づきを気が向いたときに記録しています。
+          <!-- 修正: 説明文をボタンのすぐ下に移動 (mb-4 クラスをそのまま維持) -->
+          <p class="text-slate-600 text-sm leading-relaxed mb-4">
+            日々の気づきを気が向いたときに記録しています。最新は上記のボタンからご確認ください。
           </p>
-          
-          <!-- (3) 漫画表示エリア (最強版) -->
+
+          <!-- 漫画表示エリア -->
           <div class="mb-4 rounded-lg overflow-hidden border border-slate-200 shadow-sm bg-slate-100 min-h-[120px] flex items-center justify-center">
              <img src="manga.jpg" alt="最新の4コマ漫画" class="w-full h-auto object-cover" 
              onerror="
@@ -138,36 +135,65 @@
                // 2. manga.pngもなければ manga.jpg.png (iPadあるある) を試す
                else if (this.src.match(/manga\.png$/)) { this.src = 'manga.jpg.png'; }
                // 3. それもなければ COMING SOON を表示
-               else { this.style.display='none'; this.parentNode.innerHTML='<div class=\'text-center text-slate-400\'><span class=\'text-2xl block mb-2 opacity-50\'>☕</span><span class=\'text-xs font-bold tracking-widest\'>COMING SOON</span></div>'; }
+               else { this.style.display='none'; this.parentNode.innerHTML='<div class=\'text-center text-slate-400\'><span class=\'text-2xl block mb-2 opacity-50\'>☕</span><span class=\'text-xs font-bold tracking-widest\'>COMING SOON</span><span class=\'text-[10px] block mt-1\'>manga.jpg / manga.png をアップロード</span></div>'; }
              ">
           </div>
           
-          <!-- (4) Researchmapブログボタン (一番下に移動) -->
-          <a href="https://researchmap.jp/hata-bou/%E7%A0%94%E7%A9%B6%E3%83%96%E3%83%AD%E3%82%B0" target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-teal-200 transition group w-full">
-            <!-- アイコン -->
-            <div class="w-10 h-10 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center text-slate-500 shadow-inner group-hover:bg-teal-50 group-hover:text-teal-600 transition">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-            </div>
-            <div class="text-left overflow-hidden">
-              <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider truncate">Researchmap Blog</p>
-              <p class="text-slate-700 font-bold text-xs group-hover:text-teal-600 transition truncate">Diaryを読む</p>
-            </div>
-          </a>
-          
         </div>
 
-      </aside>
-      
+        <!-- 2. Project Updates (右側) -->
+        <section class="flex-item content-card p-6 bg-gradient-to-r from-teal-50/50 to-white">
+          
+          <!-- 資料公開リンクボタン -->
+          <!-- ⚠️ 更新時は、ここを最新資料の固有URLに書き換えてください ⚠️ -->
+          <a href="https://researchmap.jp/hata-bou/%E8%B3%87%E6%96%99%E5%85%AC%E9%96%8B" target="_blank" rel="noopener" class="inline-flex items-center justify-center w-full gap-3 px-5 py-3 bg-teal-600 text-white rounded-xl shadow-md hover:bg-teal-700 transition group font-bold text-sm mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m7 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v6" /></svg>
+            公開資料を読む
+          </a>
+          
+          <!-- 修正: 説明文をボタンのすぐ下に移動 (mb-4 クラスをそのまま維持) -->
+          <p class="text-slate-600 text-sm leading-relaxed mb-4">
+            研究に関する資料などを公開しています。最新は上記のボタンからご確認ください。
+          </p>
+
+          <!-- 【追加】資料表示エリア -->
+          <div class="mb-4 rounded-lg overflow-hidden border border-slate-200 shadow-sm bg-slate-100 min-h-[120px] flex items-center justify-center">
+             <img src="shiryo.jpg" alt="最新の公開資料サムネイル" class="w-full h-auto object-cover" 
+             onerror="
+               // 1. shiryo.jpgがなければ shiryo.png を試す
+               if (this.src.match(/shiryo\.jpg$/)) { this.src = 'shiryo.png'; } 
+               // 2. shiryo.pngもなければ shiryo.jpg.png (iPadあるある) を試す
+               else if (this.src.match(/shiryo\.png$/)) { this.src = 'shiryo.jpg.png'; }
+               // 3. それもなければ ファイル名を表示
+               else { this.style.display='none'; this.parentNode.innerHTML='<div class=\'text-center text-slate-400\'><span class=\'text-2xl block mb-2 opacity-50\'>📄</span><span class=\'text-xs font-bold tracking-widest\'>資料サムネイルをアップロード</span><span class=\'text-[10px] block mt-1\'>shiryo.jpg / shiryo.png</span></div>'; }
+             ">
+          </div>
+          
+        </section>
+
+      </div>
+
     </div>
 
-    <footer class="text-center text-slate-400 text-xs mt-16 border-t border-slate-200 pt-8">
+    <footer class="text-center text-slate-400 text-xs mt-16 border-t border-slate-200 pt-8 space-y-1">
+      <!-- 自動更新される最終閲覧日 -->
+      <p class="text-xs">最終閲覧日: <span id="current-date-auto" class="font-bold text-slate-500"></span></p>
       &copy; <span id="year"></span> Tsuyoshi Mukaihata
     </footer>
 
   </main>
 
   <script>
+    // 著作権年を更新
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // 最終閲覧日（自動更新）をセット
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    const day = today.getDate();
+    
+    document.getElementById('current-date-auto').textContent = `${year}年${month}月${day}日`;
   </script>
 </body>
 </html>
