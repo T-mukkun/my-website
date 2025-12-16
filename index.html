@@ -193,16 +193,16 @@
             研究に関する資料などを公開しています。最新は上記のボタンからご確認ください。
           </p>
 
-          <!-- 【追加】資料表示エリア -->
+          <!-- 資料表示エリア (manga.jpg -> shiryo.jpg に参照を統一) -->
           <div class="mb-4 rounded-lg overflow-hidden border border-slate-200 shadow-sm bg-slate-100 min-h-[120px] flex items-center justify-center">
              <img src="shiryo.jpg" alt="最新の公開資料サムネイル" class="w-full h-auto object-cover" 
              onerror="
-               // 1. manga.jpgがなければ manga.png を試す
-               if (this.src.match(/manga\.jpg$/)) { this.src = 'manga.png'; } 
-               // 2. manga.pngもなければ manga.jpg.png (iPadあるある) を試す
-               else if (this.src.match(/manga\.png$/)) { this.src = 'manga.jpg.png'; }
-               // 3. それもなければ COMING SOON を表示
-               else { this.style.display='none'; this.parentNode.innerHTML='<div class=\'text-center text-slate-400\'><span class=\'text-2xl block mb-2 opacity-50\'>☕</span><span class=\'text-xs font-bold tracking-widest\'>COMING SOON</span><span class=\'text-[10px] block mt-1\'>manga.jpg / manga.png をアップロード</span></div>'; }
+               // 1. shiryo.jpgがなければ shiryo.png を試す
+               if (this.src.match(/shiryo\.jpg$/)) { this.src = 'shiryo.png'; } 
+               // 2. shiryo.pngもなければ shiryo.jpg.png (iPadあるある) を試す
+               else if (this.src.match(/shiryo\.png$/)) { this.src = 'shiryo.jpg.png'; }
+               // 3. それもなければ ファイル名を表示
+               else { this.style.display='none'; this.parentNode.innerHTML='<div class=\'text-center text-slate-400\'><span class=\'text-2xl block mb-2 opacity-50\'>📄</span><span class=\'text-xs font-bold tracking-widest\'>資料サムネイルをアップロード</span><span class=\'text-[10px] block mt-1\'>shiryo.jpg / shiryo.png</span></div>'; }
              ">
           </div>
           
