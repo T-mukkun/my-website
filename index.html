@@ -98,7 +98,10 @@
       <!-- Vision / Research Focus (横目一杯に拡張) -->
       <section class="content-card p-8 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
-        <h2 class="serif text-2xl font-bold text-slate-800 mb-6">Research Focus</h2>
+        <!-- 修正: 星マークを追加し、サイズを統一 (text-2xl) -->
+        <h2 class="serif text-2xl font-bold text-slate-800 mb-6">
+            <span class="text-teal-600 text-2xl mr-2">✦</span>Research Focus
+        </h2>
         
         <div class="prose prose-slate max-w-none">
           <p class="text-lg leading-relaxed text-slate-700 mb-6 font-bold">
@@ -115,26 +118,28 @@
         </div>
       </section>
 
-      <!-- 【修正】Research Projects (科研費・外部プロジェクト情報) - 2件表示 -->
-      <section class="content-card p-6 border border-slate-200 shadow-sm bg-gray-50/50">
-        <h3 class="text-lg font-bold text-slate-700 mb-4">
-            <span class="text-teal-600 text-xl mr-2">✦</span>Research Projects
+      <!-- 【修正】Research Projects (科研費・外部プロジェクト情報) - p-8 と relative overflow-hidden, absolute w-1 h-full を追加し、幅を合わせる -->
+      <section class="content-card p-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div> <!-- Focusと同じように左側に縦のラインを追加 -->
+        <!-- 修正: サイズを統一 (text-2xl) -->
+        <h3 class="text-2xl font-bold text-slate-700 mb-4">
+            <span class="text-teal-600 text-2xl mr-2">✦</span>Research Projects
         </h3>
         
-        <!-- Project 1: Researchmap 42044364 (リンク表示を修正) -->
+        <!-- Project 1: Researchmap 42044364 (タイトルサイズ変更) -->
         <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-inner">
-            <!-- タイトルはそのまま -->
-            <p class="text-sm font-semibold text-slate-800 mb-1">精神科看護師のワーク・エンゲイジメント向上に有効な感情調整方略の特定</p>
+            <!-- サイズを text-lg に変更 -->
+            <p class="text-lg font-semibold text-slate-800 mb-1">精神科看護師のワーク・エンゲイジメント向上に有効な感情調整方略の特定</p>
             <a href="https://researchmap.jp/hata-bou/research_projects/42044364" target="_blank" rel="noopener" class="text-xs text-teal-600 hover:underline flex items-center gap-1">
                 <svg class="external-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 科研 若手研究 2023年4月 - 2027年3月
             </a>
         </div>
 
-        <!-- Project 2: KAKENHI (リンク表示を修正) -->
+        <!-- Project 2: KAKENHI (タイトルサイズ変更) -->
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-inner">
-            <!-- タイトルはそのまま -->
-            <p class="text-sm font-semibold text-slate-800 mb-1">精神科看護師の高パフォーマンスを目指したワーク・エンゲイジメント促進モデルの構築</p>
+            <!-- サイズを text-lg に変更 -->
+            <p class="text-lg font-semibold text-slate-800 mb-1">精神科看護師の高パフォーマンスを目指したワーク・エンゲイジメント促進モデルの構築</p>
             <a href="https://kaken.nii.ac.jp/grant/KAKENHI-PROJECT-21K17368" target="_blank" rel="noopener" class="text-xs text-teal-600 hover:underline flex items-center gap-1">
                 <svg class="external-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 科研 若手研究 2021年4月 - 2023年3月
