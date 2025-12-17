@@ -1,4 +1,4 @@
-<!doctype html>
+<!doctype html> 
 <html lang="ja">
 <head>
   <!-- Project Pages の場合はリポジトリ名まで入れる -->
@@ -33,8 +33,12 @@
         `${baseName}.png`,
         `${baseName}.jpeg`,
         `${baseName}.webp`,
+        // 拡張子が二重・混在してしまったケース
         `${baseName}.jpg.png`,
-        `${baseName}.png.png`,
+        `${baseName}.png.jpg`,
+        // 日本語中点（・）が入ったケース（例: manga.jpg・png）
+        `${baseName}.jpg・png`,
+        `${baseName}.png・jpg`,
       ];
 
       // 今のsrcが candidates の何番目かを判定して、次へ
@@ -145,7 +149,7 @@
         <div class="md:flex md:items-start md:gap-6">
           <div class="md:flex-1">
             <p class="text-lg leading-relaxed text-slate-700 font-bold mb-4">
-              研究の背景とこれまでの歩み。
+              研究の背景とこれまでの歩み。今後の方向性など。
             </p>
 
             <details class="prose prose-slate max-w-none">
@@ -153,7 +157,6 @@
                 詳細を見る（クリックして全文を表示）
               </summary>
 
-              <!-- ここはあなたの本文のまま（省略せず） -->
               <p class="text-slate-600 leading-relaxed mb-4">
                 臨床で精神科看護師として働く中で、「看護師が楽しく、いきいきと働き続けるにはどうすればよいのか」に関心を持つようになりました。教員となってから、<strong>ワーク・エンゲージメント（WE）</strong>という、仕事に対する前向きで充実した心理状態を表す概念に出会いました。WEが高い人ほど、仕事を楽しみながら長く働き、質の高い仕事ができることが知られています。
               </p>
@@ -165,6 +168,9 @@
                     <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
                 </a>。
+              </p>
+              <p class="text-slate-600 leading-relaxed mb-4">
+                その結果、WEが高い看護師は、心身の健康状態が良く、仕事への満足感が高いだけでなく、患者さんの回復を信じ、良いケアができていると実感している傾向があることが分かりました。このことから、WEの向上は精神科看護師にとって重要なテーマであると考えられました。
               </p>
               <p class="text-slate-600 leading-relaxed mb-4">
                 次に、WEに影響を与える要因について調査を行い
@@ -182,6 +188,9 @@
                   </svg>
                 </a>。
               </p>
+              <p class="text-slate-600 leading-relaxed mb-4">
+                その結果、WEには、報酬や人間関係などの職場要因、情動知能などの個人要因、そして患者さんの看護師に対する態度といった患者要因が関係している可能性が示されました。
+              </p>
               <p class="text-slate-600 leading-relaxed">
                 ただし、これまでの研究結果は「関連がある可能性」を示した段階にとどまっています。今後は、これらの要因に働きかけることで本当にWEが高まるのか、また、どのような介入方法が有効なのかを検討していく必要があると考えています。
               </p>
@@ -196,9 +205,6 @@
           </div>
         </div>
       </section>
-
-      <!-- ここから下（Research Projects / Diary / 公開資料）はあなたのコードのままでOK -->
-      <!-- ただし manga/shiryo の src は相対パスにしてフォールバックを共通関数に寄せる -->
 
       <div class="flex-container">
 
