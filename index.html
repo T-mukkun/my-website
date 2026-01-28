@@ -2,7 +2,7 @@
 <html lang="ja">
 
 <head>
-  <!-- Project Pages の場合はリポジトリ名まで入れる -->
+  <!-- GitHub Pages 用の設定を有効にしました -->
   <base href="https://t-mukkun.github.io/my-website/" />
 
   <meta charset="utf-8" />
@@ -78,6 +78,27 @@
     .animate-header {
       animation: headerFadeIn 0.8s ease-out forwards;
     }
+
+    /* Slideshow Styles */
+    .slideshow-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slideshow-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+    }
+
+    .slideshow-img.active {
+      opacity: 1;
+    }
   </style>
 
   <script>
@@ -88,15 +109,12 @@
         `${baseName}.png`,
         `${baseName}.jpeg`,
         `${baseName}.webp`,
-        // 拡張子が二重・混在してしまったケース
         `${baseName}.jpg.png`,
         `${baseName}.png.jpg`,
-        // 日本語中点（・）が入ったケース（例: manga.jpg・png）
         `${baseName}.jpg・png`,
         `${baseName}.png・jpg`,
       ];
 
-      // 今のsrcが candidates の何番目かを判定して、次へ
       const current = (img.getAttribute('src') || '').split('/').pop();
       const idx = candidates.indexOf(current);
       const next = (idx >= 0) ? candidates[idx + 1] : candidates[0];
@@ -106,7 +124,6 @@
         return;
       }
 
-      // 全滅したらプレースホルダー
       img.style.display = 'none';
       img.parentNode.innerHTML =
         `<div class="text-center text-slate-400">
@@ -119,18 +136,24 @@
 </head>
 
 <body class="antialiased pb-12">
-  <main class="max-w-5xl mx-auto px-4 pt-8 md:pt-12">
+  <main class="max-w-7xl mx-auto px-4 pt-8 md:pt-12">
 
     <header
       class="animate-header glass-header rounded-[2.5rem] p-8 md:p-12 mb-16 flex flex-col md:flex-row items-center justify-center gap-10 shadow-2xl shadow-teal-900/5">
 
       <div class="flex flex-col md:flex-row items-center gap-10">
         <div
-          class="w-44 h-44 md:w-52 md:h-52 rounded-[3.5rem] border-8 border-white shadow-2xl overflow-hidden flex-shrink-0 bg-slate-100 relative group transition-transform duration-500 hover:scale-[1.02]">
-          <img src="profile.jpg" alt="向畑 毅"
-            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            onerror="fallbackImage(this,'profile','👤')">
-          <div class="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-[3.5rem]"></div>
+          class="w-64 h-44 md:w-80 md:h-52 rounded-[2.5rem] border-8 border-white shadow-2xl overflow-hidden flex-shrink-0 bg-slate-100 relative group transition-transform duration-500 hover:scale-[1.02]">
+          <div id="profile-slideshow" class="slideshow-container">
+            <img src="profile.jpg" alt="向畑 毅 1" class="slideshow-img active"
+              onerror="fallbackImage(this,'profile','👤')">
+            <img src="profile2.jpg" alt="向畑 毅 2" class="slideshow-img" onerror="fallbackImage(this,'profile2','👤')">
+            <img src="profile3.jpg" alt="向畑 毅 3" class="slideshow-img" onerror="fallbackImage(this,'profile3','👤')">
+            <img src="profile4.jpg" alt="向畑 毅 4" class="slideshow-img" onerror="fallbackImage(this,'profile4','👤')">
+            <img src="profile5.jpg" alt="向畑 毅 5" class="slideshow-img" onerror="fallbackImage(this,'profile5','👤')">
+            <img src="profile6.jpg" alt="向畑 毅 6" class="slideshow-img" onerror="fallbackImage(this,'profile6','👤')">
+          </div>
+          <div class="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-[2.5rem] pointer-events-none"></div>
         </div>
 
         <div class="text-center md:text-left">
@@ -165,7 +188,7 @@
       </div>
     </header>
 
-    <div class="space-y-8">
+    <div class="max-w-5xl mx-auto space-y-8">
 
       <section class="content-card p-6 bg-slate-800 text-slate-300 shadow-md">
         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">About this site</h3>
@@ -174,10 +197,9 @@
         </p>
       </section>
 
-      <!-- Research Focus (Plan B: Advanced & Cool) -->
+      <!-- Research Focus -->
       <section
         class="group relative p-8 rounded-3xl transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl overflow-hidden border border-white/40 bg-white/60 backdrop-blur-xl">
-        <!-- 背景のアクセント装飾 -->
         <div
           class="absolute -top-24 -right-24 w-48 h-48 bg-slate-100 rounded-full blur-3xl group-hover:bg-teal-500/5 transition-colors duration-500">
         </div>
@@ -238,7 +260,7 @@
             <div
               class="relative rounded-2xl overflow-hidden shadow-xl shadow-teal-900/10 transition-transform duration-500 group-hover/image:scale-105">
               <div class="h-32 md:h-40 bg-slate-100 flex items-center justify-center">
-                <img src="gazo1.jpg" alt="Research Focus image" class="w-full h-full object-cover"
+                <img src="gazo1.png" alt="Research Focus image" class="w-full h-full object-cover"
                   onerror="fallbackImage(this,'gazo1','🖼️')">
               </div>
               <div class="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent"></div>
@@ -247,10 +269,9 @@
         </div>
       </section>
 
-      <!-- Road Map (Plan B: Advanced & Cool) -->
+      <!-- Road Map -->
       <section
         class="group relative p-8 rounded-3xl transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl overflow-hidden border border-white/40 bg-white/60 backdrop-blur-xl">
-        <!-- 背景のアクセント装飾 -->
         <div
           class="absolute -bottom-24 -left-24 w-48 h-48 bg-slate-100 rounded-full blur-3xl group-hover:bg-teal-500/5 transition-colors duration-500">
         </div>
@@ -369,7 +390,7 @@
             <div
               class="relative rounded-2xl overflow-hidden shadow-xl shadow-teal-900/10 transition-transform duration-500 group-hover/image:scale-105">
               <div class="h-32 md:h-40 bg-slate-100 flex items-center justify-center">
-                <img src="gazo2.jpg" alt="Road Map image" class="w-full h-full object-cover"
+                <img src="gazo2.png" alt="Road Map image" class="w-full h-full object-cover"
                   onerror="fallbackImage(this,'gazo2','🗺️')">
               </div>
               <div class="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent"></div>
@@ -410,7 +431,7 @@
 
           <div
             class="relative rounded-2xl overflow-hidden border border-white/60 shadow-inner shadow-black/5 bg-slate-50 group/image">
-            <img src="manga.jpg" alt="最新の4コマ漫画"
+            <img src="manga.jpg.png" alt="最新の4コマ漫画"
               class="w-full h-auto object-cover transition-transform duration-700 group-hover/image:scale-105"
               onerror="fallbackImage(this,'manga','☕')">
             <div class="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl"></div>
@@ -446,7 +467,7 @@
 
           <div
             class="relative rounded-2xl overflow-hidden border border-white/60 shadow-inner shadow-black/5 bg-slate-50 group/image">
-            <img src="shiryo.jpg" alt="最新の公開資料サムネイル"
+            <img src="shiryo.png" alt="最新の公開資料サムネイル"
               class="w-full h-auto object-cover transition-transform duration-700 group-hover/image:scale-105"
               onerror="fallbackImage(this,'shiryo','📄')">
             <div class="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl"></div>
@@ -467,6 +488,20 @@
     const today = new Date();
     document.getElementById('current-date-auto').textContent =
       `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+
+    // Profile Slideshow Logic
+    window.addEventListener('DOMContentLoaded', () => {
+      const images = document.querySelectorAll('#profile-slideshow .slideshow-img');
+      let currentIndex = 0;
+
+      if (images.length > 1) {
+        setInterval(() => {
+          images[currentIndex].classList.remove('active');
+          currentIndex = (currentIndex + 1) % images.length;
+          images[currentIndex].classList.add('active');
+        }, 4000); // 4 seconds interval
+      }
+    });
   </script>
 </body>
 
