@@ -3,7 +3,7 @@
 
 <head>
   <!-- Project Pages の場合はリポジトリ名まで入れる -->
-  <base href="https://t-mukkun.github.io/my-website/" />
+  <!-- <base href="https://t-mukkun.github.io/my-website/" /> -->
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -78,6 +78,27 @@
     .animate-header {
       animation: headerFadeIn 0.8s ease-out forwards;
     }
+
+    /* Slideshow Styles */
+    .slideshow-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slideshow-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+    }
+
+    .slideshow-img.active {
+      opacity: 1;
+    }
   </style>
 
   <script>
@@ -119,18 +140,24 @@
 </head>
 
 <body class="antialiased pb-12">
-  <main class="max-w-5xl mx-auto px-4 pt-8 md:pt-12">
+  <main class="max-w-7xl mx-auto px-4 pt-8 md:pt-12">
 
     <header
       class="animate-header glass-header rounded-[2.5rem] p-8 md:p-12 mb-16 flex flex-col md:flex-row items-center justify-center gap-10 shadow-2xl shadow-teal-900/5">
 
       <div class="flex flex-col md:flex-row items-center gap-10">
         <div
-          class="w-44 h-44 md:w-52 md:h-52 rounded-[3.5rem] border-8 border-white shadow-2xl overflow-hidden flex-shrink-0 bg-slate-100 relative group transition-transform duration-500 hover:scale-[1.02]">
-          <img src="profile.jpg" alt="向畑 毅"
-            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            onerror="fallbackImage(this,'profile','👤')">
-          <div class="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-[3.5rem]"></div>
+          class="w-64 h-44 md:w-80 md:h-52 rounded-[2.5rem] border-8 border-white shadow-2xl overflow-hidden flex-shrink-0 bg-slate-100 relative group transition-transform duration-500 hover:scale-[1.02]">
+          <div id="profile-slideshow" class="slideshow-container">
+            <img src="profile.jpg" alt="向畑 毅 1" class="slideshow-img active"
+              onerror="fallbackImage(this,'profile','👤')">
+            <img src="profile2.jpg" alt="向畑 毅 2" class="slideshow-img" onerror="fallbackImage(this,'profile2','👤')">
+            <img src="profile3.jpg" alt="向畑 毅 3" class="slideshow-img" onerror="fallbackImage(this,'profile3','👤')">
+            <img src="profile4.jpg" alt="向畑 毅 4" class="slideshow-img" onerror="fallbackImage(this,'profile4','👤')">
+            <img src="profile5.jpg" alt="向畑 毅 5" class="slideshow-img" onerror="fallbackImage(this,'profile5','👤')">
+            <img src="profile6.jpg" alt="向畑 毅 6" class="slideshow-img" onerror="fallbackImage(this,'profile6','👤')">
+          </div>
+          <div class="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-[2.5rem] pointer-events-none"></div>
         </div>
 
         <div class="text-center md:text-left">
@@ -165,7 +192,7 @@
       </div>
     </header>
 
-    <div class="space-y-8">
+    <div class="max-w-5xl mx-auto space-y-8">
 
       <section class="content-card p-6 bg-slate-800 text-slate-300 shadow-md">
         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">About this site</h3>
@@ -328,7 +355,7 @@
                       <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                   </a>。
-                  その結果、WEには、報酬や人間関係などの職場要因、情動知能などの個人要因、そして患者さんの看護師への態度といった患者要因が関係している可能性が示されました。
+                  その結果、WEには、報酬や人間関係などの職場要因、情動知能などの個人要因、そして患者さんのポジティブな反応といった患者要因が関係している可能性が示されました。
                   さらにWEを高める方略を検討し
                   <a href="https://researchmap.jp/hata-bou/misc/51933362" onclick="event.stopPropagation();"
                     target="_blank" rel="noopener"
@@ -455,6 +482,7 @@
 
       </div>
     </div>
+    </div>
 
     <footer class="text-center text-slate-400 text-xs mt-16 border-t border-slate-200 pt-8 space-y-1">
       <p class="text-xs">最終閲覧日: <span id="current-date-auto" class="font-bold text-slate-500"></span></p>
@@ -467,6 +495,20 @@
     const today = new Date();
     document.getElementById('current-date-auto').textContent =
       `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+
+    // Profile Slideshow Logic
+    window.addEventListener('DOMContentLoaded', () => {
+      const images = document.querySelectorAll('#profile-slideshow .slideshow-img');
+      let currentIndex = 0;
+
+      if (images.length > 1) {
+        setInterval(() => {
+          images[currentIndex].classList.remove('active');
+          currentIndex = (currentIndex + 1) % images.length;
+          images[currentIndex].classList.add('active');
+        }, 4000); // 4 seconds interval
+      }
+    });
   </script>
 </body>
 
