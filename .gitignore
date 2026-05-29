@@ -1,0 +1,8 @@
+.env
+*.key
+*.pem
+*.p12
+*.pfx
+Thumbs.db
+Desktop.ini
+.DS_Store
