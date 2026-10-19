@@ -110,6 +110,32 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
 .paper-link{display:inline-flex;align-items:center;min-height:32px;padding:2px 10px;margin:2px 3px;border:1px solid #b8ad93;border-radius:999px;background:#f6f1e3;color:#5d5136;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
 .paper-link:hover{background:#e9dfc6}
 .paper-link:focus-visible{outline:3px solid #97671d;outline-offset:3px}
+
+/* ===== 展示中の部屋（扉の札） ===== */
+.portal.has-works .portal-plaque{background:#3b5044;color:#fffaf0;border-color:#2c3d33}
+.portal.has-works .portal-plaque::before{border-color:#2c3d33}
+
+/* ===== 部屋の展示（拡大・縮小せず、画面いっぱいに広げて縦にスクロールして鑑賞する） ===== */
+.stage.in-room .top-bar{display:none}
+.room-panel{position:fixed;inset:0;z-index:14;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 14px 28px;background:linear-gradient(#f4f1e6,#ebe6d6);visibility:hidden;opacity:0;transition:opacity .35s,visibility 0s linear .35s}
+.room-panel.open{visibility:visible;opacity:1;transition:opacity .35s,visibility 0s}
+.room-panel[data-area="pt"]{background:linear-gradient(#eef2ea,#e2e9da)}
+.room-panel[data-area="in"]{background:linear-gradient(#eeeef4,#e3e2ec)}
+.room-head{max-width:460px;margin:0 auto 14px;text-align:center}
+.room-head small{display:block;font:9px Georgia,serif;letter-spacing:.2em;color:#7b6942}
+.room-head h2{font-family:'Yu Mincho','Hiragino Mincho ProN',serif;font-weight:normal;font-size:20px;letter-spacing:.08em;color:#31473f;margin:2px 0 0;outline:none}
+.room-back{border:1px solid #b8ad93;background:#fffdf6ee;color:#5d5136;border-radius:999px;padding:5px 14px;font:inherit;font-size:12px;line-height:1.4;cursor:pointer}
+.room-back:hover{background:#f3eee0}
+.room-foot{text-align:center;margin-top:8px}
+.work{max-width:460px;margin:0 auto 26px;background:#fffdf7;border:1px solid #d6cdb4;border-radius:6px;padding:14px 12px 12px;box-shadow:0 8px 22px #37524622;scroll-margin-top:12px}
+.work-image{display:block;width:100%;height:auto;border-radius:2px}
+.work-date{display:block;margin-top:4px;text-align:right;font:11px Georgia,serif;letter-spacing:.08em;color:#7b6942}
+.comment-toggle{display:flex;align-items:center;gap:6px;margin:14px auto 0;border:1px solid #b8ad93;background:#f6f1e3;color:#5d5136;border-radius:999px;padding:6px 18px;font:inherit;font-size:13px;line-height:1.4;cursor:pointer}
+.comment-toggle:hover{background:#e9dfc6}
+.comment-toggle .chev{display:inline-block;transition:transform .3s;font-size:10px}
+.comment-toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.work-comment{margin:10px 2px 0;padding:10px 12px;border-left:3px solid #b8ad93;background:#f8f4e8;font-size:14px;line-height:1.9;white-space:pre-line}
+.work-note{margin:12px 0 0;text-align:center;font-size:11px;color:#7a8279;line-height:1.6}
 </style>
 </head>
 <body>
@@ -171,7 +197,16 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
 
   <div class="top-bar">
     <button class="about-open" id="aboutOpen" aria-expanded="false" aria-controls="aboutPanel">このギャラリーについて <span class="chev" aria-hidden="true">▼</span></button>
-    <span class="badge">展示準備中</span>
+    <span class="badge" id="statusBadge">展示準備中</span>
+  </div>
+
+  <div class="room-panel" id="roomPanel" role="region" aria-labelledby="roomTitle">
+    <div class="room-head">
+      <small id="roomEn"></small>
+      <h2 id="roomTitle" tabindex="-1"></h2>
+    </div>
+    <div id="roomWorks"></div>
+    <div class="room-foot"><button type="button" class="room-back" id="roomBack">← ホールへ戻る</button></div>
   </div>
 
   <div class="about-panel" id="aboutPanel" role="region" aria-label="このギャラリーについて">
@@ -206,6 +241,7 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
 
 </div>
 
+<script src="gallery/works.js"></script>
 <script>
 (function(){
   /* 正方形の枠に合わせて外観を拡大・縮小する */
@@ -235,10 +271,74 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
     document.getElementById('museumEnter').disabled=false;
     document.getElementById('museumEnter').focus({preventScroll:true});
   });
-  Array.prototype.forEach.call(document.querySelectorAll('.portal'),function(b){
-    b.addEventListener('click',function(){noticeTitle.textContent=b.dataset.name+'の部屋';notice.hidden=false;});
-  });
   document.getElementById('prepClose').addEventListener('click',function(){notice.hidden=true;});
+
+  /* ===== 部屋の展示（作品は gallery/works.js から読み込む） ===== */
+  var works=window.GALLERY_WORKS||[];
+  var roomPanel=document.getElementById('roomPanel'),roomWorks=document.getElementById('roomWorks');
+  var roomTitle=document.getElementById('roomTitle'),roomEn=document.getElementById('roomEn');
+  var lastPortal=null;
+  function worksIn(area){return works.filter(function(w){return w.room===area;});}
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+
+  function renderWork(w){
+    var art=el('article','work');art.id=w.id;
+    var img=el('img','work-image');img.src=w.image;img.alt=w.alt||'4コマ漫画';img.decoding='async';
+    art.appendChild(img);
+    var t=el('time','work-date',(w.date||'').replace(/-/g,'.'));t.dateTime=w.date||'';art.appendChild(t);
+    if(w.comment){
+      var btn=el('button','comment-toggle');btn.type='button';
+      btn.innerHTML='作者コメント <span class="chev" aria-hidden="true">▼</span>';
+      var box=el('div','work-comment',w.comment);box.id=w.id+'-comment';box.hidden=true;
+      btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-controls',box.id);
+      btn.addEventListener('click',function(){var open=box.hidden;box.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false');});
+      art.appendChild(btn);art.appendChild(box);
+    }
+    art.appendChild(el('p','work-note','この作品は研究知見に基づく創作（フィクション）です。'));
+    return art;
+  }
+  function openRoom(portal,workId){
+    var area=portal.dataset.area;
+    lastPortal=portal;notice.hidden=true;
+    roomPanel.dataset.area=area;
+    roomTitle.textContent=portal.dataset.name+'の部屋';
+    roomEn.textContent=portal.querySelector('.portal-label b').textContent.toUpperCase();
+    roomWorks.innerHTML='';
+    worksIn(area).forEach(function(w){roomWorks.appendChild(renderWork(w));});
+    roomPanel.classList.add('open');stage.classList.add('in-room');
+    var target=workId&&document.getElementById(workId);
+    if(target){target.scrollIntoView();}else{roomPanel.scrollTop=0;}
+    roomTitle.focus({preventScroll:true});
+  }
+  function closeRoom(){
+    roomPanel.classList.remove('open');stage.classList.remove('in-room');
+    if(lastPortal)lastPortal.focus({preventScroll:true});
+  }
+  document.getElementById('roomBack').addEventListener('click',closeRoom);
+
+  /* 扉の札と表示を、展示中の作品数に合わせて切り替える */
+  Array.prototype.forEach.call(document.querySelectorAll('.portal'),function(b){
+    var n=worksIn(b.dataset.area).length;
+    if(n){b.classList.add('has-works');b.querySelector('.portal-plaque').textContent=n+'点展示中';}
+    b.addEventListener('click',function(){
+      if(worksIn(b.dataset.area).length){openRoom(b);}
+      else{noticeTitle.textContent=b.dataset.name+'の部屋';notice.hidden=false;}
+    });
+  });
+  if(works.length){
+    document.getElementById('statusBadge').textContent='一部展示中';
+    document.querySelector('.hall-heading p').textContent='扉をひらいて、作品にふれてみてください。';
+  }
+
+  /* 作品への直接リンク（例：hatarakigai-gallery.html#pt-001）で、その作品を開く */
+  function openFromHash(){
+    var id=decodeURIComponent(location.hash.slice(1));
+    var w=works.filter(function(x){return x.id===id;})[0];
+    if(!w)return;
+    exterior.hidden=true;hall.hidden=false;exterior.classList.add('entering');
+    openRoom(document.querySelector('.portal[data-area="'+w.room+'"]'),w.id);
+  }
+  openFromHash();window.addEventListener('hashchange',openFromHash);
 
   /* 説明パネルの開閉 */
   var openBtn=document.getElementById('aboutOpen'),panel=document.getElementById('aboutPanel');
@@ -250,7 +350,7 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
   openBtn.addEventListener('click',function(){setPanel(!panel.classList.contains('open'));});
   document.getElementById('aboutClose').addEventListener('click',function(){setPanel(false);openBtn.focus();});
   document.addEventListener('keydown',function(e){
-    if(e.key==='Escape'){if(panel.classList.contains('open')){setPanel(false);openBtn.focus();}else{notice.hidden=true;}}
+    if(e.key==='Escape'){if(panel.classList.contains('open')){setPanel(false);openBtn.focus();}else if(roomPanel.classList.contains('open')){closeRoom();}else{notice.hidden=true;}}
   });
 })();
 </script>
