@@ -53,7 +53,7 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Meiryo,s
 .entry-leaf{position:absolute;top:0;bottom:0;width:50%;background:linear-gradient(transparent 72%,#748276 73%),linear-gradient(130deg,#577d86,#a5c3c3 45%,#557a7d);border:3px solid #998a67;transition:transform 1.1s;backface-visibility:hidden;transform-style:preserve-3d}
 .entry-leaf::before{content:'';position:absolute;inset:6% 9% 18%;border:2px solid #c4bb9d;background:linear-gradient(135deg,#ffffff50,transparent 55%);box-shadow:inset 0 0 12px #36596422}
 .leaf-left{left:0;transform-origin:left}.leaf-right{right:0;transform-origin:right}.entry-leaf i{position:absolute;top:62%;height:22px;width:4px;border-radius:3px;background:#d8b775;box-shadow:0 0 10px #fbe7af66}.leaf-left i{right:12%}.leaf-right i{left:12%}
-.entry-caption{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:10px 14px;border:1px solid #9c8c67;border-radius:7px;background:#fffaf0;color:#354b40;font-family:inherit;font-size:14px;line-height:1.5;letter-spacing:.02em;font-weight:700;box-shadow:0 3px 10px #233c3840;pointer-events:none;transition:opacity .2s,background .2s,box-shadow .2s}
+.entry-caption{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:8px 10px;border:1px solid #9c8c67;border-radius:7px;background:#fffaf0;color:#354b40;font-family:inherit;font-size:11px;line-height:1.5;letter-spacing:.02em;font-weight:700;box-shadow:0 3px 10px #233c3840;pointer-events:none;transition:opacity .2s,background .2s,box-shadow .2s}
 .entry-door:hover .entry-caption,.entry-door:focus-visible .entry-caption{background:#fff3d5;box-shadow:0 4px 14px #233c3860}.entry-caption>span{margin-left:6px}.entry-door:focus-visible{outline:3px solid #97671d;outline-offset:6px}
 .museum-steps{position:absolute;left:6%;right:6%;top:79.5%;height:30px;background:linear-gradient(#eee8d6 0 25%,#b7ad91 26% 32%,#e2dbc6 33% 62%,#afa58a 63% 70%,#d7cfb9 71%);clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);box-shadow:0 12px 18px #46543e22;z-index:-1}
 .entry-path{position:absolute;left:17%;right:17%;top:84%;height:30%;background:repeating-linear-gradient(0deg,transparent 0 22px,#a7a99555 23px 24px),linear-gradient(#e1decd,#eff0e8);clip-path:polygon(30% 0,70% 0,100% 100%,0 100%);z-index:-2}
@@ -162,7 +162,7 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
             <button class="entry-door" id="museumEnter" aria-label="正面のドアを開けて入館する">
               <span class="entry-leaf leaf-left" aria-hidden="true"><i></i></span>
               <span class="entry-leaf leaf-right" aria-hidden="true"><i></i></span>
-              <span class="entry-caption">入る</span>
+              <span class="entry-caption">コチラからどうぞ→</span>
             </button>
           </div>
         </div>
