@@ -58,7 +58,6 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Meiryo,s
 .museum-steps{position:absolute;left:6%;right:6%;top:79.5%;height:30px;background:linear-gradient(#eee8d6 0 25%,#b7ad91 26% 32%,#e2dbc6 33% 62%,#afa58a 63% 70%,#d7cfb9 71%);clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);box-shadow:0 12px 18px #46543e22;z-index:-1}
 .entry-path{position:absolute;left:17%;right:17%;top:84%;height:30%;background:repeating-linear-gradient(0deg,transparent 0 22px,#a7a99555 23px 24px),linear-gradient(#e1decd,#eff0e8);clip-path:polygon(30% 0,70% 0,100% 100%,0 100%);z-index:-2}
 .exterior-note{position:absolute;bottom:40px;left:0;right:0;text-align:center;color:#455541;font-family:'Yu Mincho','Hiragino Mincho ProN',serif;letter-spacing:.13em;font-size:15px;text-shadow:0 1px 4px #ffffffaa;margin:0}
-.skip-entry{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);border:0;background:transparent;color:#4f654e;font:inherit;font-size:12px;text-decoration:underline;text-underline-offset:4px;cursor:pointer;padding:6px}
 .entering .leaf-left{transform:rotateY(-105deg)}.entering .leaf-right{transform:rotateY(105deg)}.entering .entry-caption{opacity:0}.entering .museum-building{transform:scale(1.18)}
 .museum-hall{background:radial-gradient(ellipse at 50% 18%,#fffef5dd,transparent 70%),linear-gradient(#d9ddd0,#efeada 70%,#c9c6b3);animation:hall-fade .75s ease-out}
 .hall-ceiling{position:absolute;inset:0;background:linear-gradient(#eef3eb,#d0d6c8);clip-path:polygon(0 0,100% 0,85% 20%,15% 20%)}
@@ -162,14 +161,13 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
             <button class="entry-door" id="museumEnter" aria-label="正面のドアを開けて入館する">
               <span class="entry-leaf leaf-left" aria-hidden="true"><i></i></span>
               <span class="entry-leaf leaf-right" aria-hidden="true"><i></i></span>
-              <span class="entry-caption">コチラからどうぞ→</span>
+              <span class="entry-caption">コチラから入館→</span>
             </button>
           </div>
         </div>
         <div class="museum-steps" aria-hidden="true"></div>
         <div class="entry-path" aria-hidden="true"></div>
         <p class="exterior-note">ひとつの物語から、働きがいにふれる。</p>
-        <button class="skip-entry" id="museumSkip">演出を省略して入館</button>
       </div>
 
       <div class="museum-hall" id="museumHall" hidden>
@@ -268,7 +266,6 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
     },skip||reduced.matches?0:1100);
   }
   document.getElementById('museumEnter').addEventListener('click',function(){enter(false);});
-  document.getElementById('museumSkip').addEventListener('click',function(){enter(true);});
   document.getElementById('museumExit').addEventListener('click',function(){
     hall.hidden=true;notice.hidden=true;exterior.hidden=false;exterior.classList.remove('entering');
     document.getElementById('museumEnter').disabled=false;
