@@ -85,12 +85,11 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Meiryo,s
 .top-bar{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:20;pointer-events:none}
 .top-bar>*{pointer-events:auto}
 /* 小さい枠では、上部のボタンも少し小さくしてホールの見出しに重ならないようにする */
-@media(max-width:460px),(max-height:460px){.top-bar{left:6px;right:6px;top:6px}.about-open,.badge{font-size:10px!important;padding:3px 9px!important}}
+@media(max-width:460px),(max-height:460px){.top-bar{left:6px;right:6px;top:6px}.about-open{font-size:10px!important;padding:3px 9px!important}}
 .about-open{border:1px solid #b8ad93;background:#fffdf6ee;color:#5d5136;border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;line-height:1.4;cursor:pointer;box-shadow:0 4px 12px #37524622;display:flex;align-items:center;gap:6px}
 .about-open:hover{background:#f3eee0}
 .about-open .chev{display:inline-block;transition:transform .3s;font-size:10px}
 .about-open[aria-expanded="true"] .chev{transform:rotate(180deg)}
-.badge{font-size:12px;letter-spacing:.08em;color:#685737;border:1px solid #b8ad93;border-radius:999px;padding:4px 12px;background:#fffdf6dd;line-height:1.4}
 button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
 
 /* ===== 説明パネル（ボタンで広がる） ===== */
@@ -198,7 +197,6 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
 
   <div class="top-bar">
     <button class="about-open" id="aboutOpen" aria-expanded="false" aria-controls="aboutPanel">このギャラリーについて <span class="chev" aria-hidden="true">▼</span></button>
-    <span class="badge" id="statusBadge">展示準備中</span>
   </div>
 
   <div class="room-panel" id="roomPanel" role="region" aria-labelledby="roomTitle">
@@ -326,7 +324,6 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
     });
   });
   if(works.length){
-    document.getElementById('statusBadge').textContent='一部展示中';
     document.querySelector('.hall-heading p').textContent='扉をひらいて、作品にふれてみてください。';
   }
 
