@@ -206,6 +206,7 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
       <h2 id="roomTitle" tabindex="-1"></h2>
     </div>
     <div id="roomWorks"></div>
+    <div class="room-nav"><button type="button" class="room-back" id="roomBackBottom">← ホールへ戻る</button></div>
   </div>
 
   <div class="about-panel" id="aboutPanel" role="region" aria-label="このギャラリーについて">
@@ -314,6 +315,7 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
     if(lastPortal)lastPortal.focus({preventScroll:true});
   }
   document.getElementById('roomBack').addEventListener('click',closeRoom);
+  document.getElementById('roomBackBottom').addEventListener('click',closeRoom);
 
   /* 扉の札と表示を、展示中の作品数に合わせて切り替える */
   Array.prototype.forEach.call(document.querySelectorAll('.portal'),function(b){
