@@ -54,7 +54,7 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Meiryo,s
 .entry-leaf::before{content:'';position:absolute;inset:6% 9% 18%;border:2px solid #c4bb9d;background:linear-gradient(135deg,#ffffff50,transparent 55%);box-shadow:inset 0 0 12px #36596422}
 .leaf-left{left:0;transform-origin:left}.leaf-right{right:0;transform-origin:right}.entry-leaf i{position:absolute;top:62%;height:22px;width:4px;border-radius:3px;background:#d8b775;box-shadow:0 0 10px #fbe7af66}.leaf-left i{right:12%}.leaf-right i{left:12%}
 .entry-caption{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:8px 10px;border:1px solid #9c8c67;border-radius:7px;background:#fffaf0;color:#354b40;font-family:inherit;font-size:11px;line-height:1.5;letter-spacing:.02em;font-weight:700;box-shadow:0 3px 10px #233c3840;pointer-events:none;transition:opacity .2s,background .2s,box-shadow .2s}
-.entry-door:hover .entry-caption,.entry-door:focus-visible .entry-caption{background:#fff3d5;box-shadow:0 4px 14px #233c3860}.entry-caption>span{margin-left:6px}.entry-door:focus-visible{outline:3px solid #97671d;outline-offset:6px}
+.entry-door:hover .entry-caption,.entry-door:focus-visible .entry-caption{background:#fff3d5;box-shadow:0 4px 14px #233c3860}.entry-door:focus-visible{outline:3px solid #97671d;outline-offset:6px}
 .museum-steps{position:absolute;left:6%;right:6%;top:79.5%;height:30px;background:linear-gradient(#eee8d6 0 25%,#b7ad91 26% 32%,#e2dbc6 33% 62%,#afa58a 63% 70%,#d7cfb9 71%);clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);box-shadow:0 12px 18px #46543e22;z-index:-1}
 .entry-path{position:absolute;left:17%;right:17%;top:84%;height:30%;background:repeating-linear-gradient(0deg,transparent 0 22px,#a7a99555 23px 24px),linear-gradient(#e1decd,#eff0e8);clip-path:polygon(30% 0,70% 0,100% 100%,0 100%);z-index:-2}
 .exterior-note{position:absolute;bottom:40px;left:0;right:0;text-align:center;color:#455541;font-family:'Yu Mincho','Hiragino Mincho ProN',serif;letter-spacing:.13em;font-size:15px;text-shadow:0 1px 4px #ffffffaa;margin:0}
@@ -256,16 +256,16 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
   var noticeTitle=document.getElementById('prepTitle');
   var reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
   var busy=false;
-  function enter(skip){
+  function enter(){
     if(busy||!hall.hidden)return;
     busy=true;exterior.classList.add('entering');
     document.getElementById('museumEnter').disabled=true;
     setTimeout(function(){
       exterior.hidden=true;hall.hidden=false;busy=false;
       document.getElementById('museumHallTitle').focus({preventScroll:true});
-    },skip||reduced.matches?0:1100);
+    },reduced.matches?0:1100);
   }
-  document.getElementById('museumEnter').addEventListener('click',function(){enter(false);});
+  document.getElementById('museumEnter').addEventListener('click',enter);
   document.getElementById('museumExit').addEventListener('click',function(){
     hall.hidden=true;notice.hidden=true;exterior.hidden=false;exterior.classList.remove('entering');
     document.getElementById('museumEnter').disabled=false;
@@ -283,7 +283,7 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
 
   function renderWork(w){
     var art=el('article','work');art.id=w.id;
-    var img=el('img','work-image');img.src=w.image;img.alt=w.alt||'4コマ漫画';img.decoding='async';
+    var img=el('img','work-image');img.src=w.image;img.alt=w.alt||'4コマ漫画';img.decoding='async';img.loading='lazy';
     art.appendChild(img);
     var t=el('time','work-date',(w.date||'').replace(/-/g,'.'));t.dateTime=w.date||'';art.appendChild(t);
     if(w.comment){
