@@ -44,7 +44,7 @@
   @keyframes twinkle{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
   @media (prefers-reduced-motion:reduce){#titleScreen .inner,#titleScreen .rule span{animation:none}}
   @media (orientation:landscape) and (max-height:520px){#titleScreen{top:46px}#titleScreen h1{font-size:24px}#titleScreen .rule{display:none}}
-  /* あそびかた(操作のまとめ) */
+  /* 楽しみ方(操作のまとめ)のカード */
   #howto{position:fixed;inset:0;background:rgba(40,52,46,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
   #howto.on{display:flex}
   #howto .card{width:100%;max-width:400px;background:#fffdf6;border:2px solid var(--gold);border-radius:16px;padding:18px 18px 16px;box-shadow:0 10px 40px rgba(0,0,0,.3);text-align:center}
@@ -136,7 +136,7 @@
   <h1 id="aboutTitle">やりがいギャラリー</h1>
   <p class="lead">精神科看護師のやりがいに、気づき、味わい、整え、育てていく小さなギャラリー</p>
   <section>
-    <h2><small>HOW TO PLAY</small>あそびかた（3Dの操作）</h2>
+    <h2><small>HOW TO VISIT</small>3Dの楽しみ方（操作）</h2>
     <div id="aboutHowto"></div>
   </section>
   <section>
@@ -171,7 +171,7 @@
 <div id="nogl"><div>この端末・ブラウザでは3D表示ができませんでした。<br><a href="hatarakigai-gallery.html">通常版のやりがいギャラリー</a>でご覧ください。</div></div>
 <div id="hint"></div>
 <div id="howto" role="dialog" aria-modal="true" aria-labelledby="howtoTitle"><div class="card">
-  <h2 id="howtoTitle">あそびかた</h2>
+  <h2 id="howtoTitle">楽しみ方</h2>
   <div id="howtoList"></div>
   <p class="note">あとで見たいときは、右上の「このギャラリーについて」にあります。</p>
   <button id="howtoStart" type="button">はじめる</button>
@@ -575,7 +575,7 @@ function learn(k){
   try{ localStorage.setItem(LEARN_KEY, JSON.stringify(learned)); }catch(e){}
   updateGuides();
 }
-// あそびかた(操作のまとめ)。はじめてホールに着いたときに1回だけカードで出す。「このギャラリーについて」にも同じ内容
+// 楽しみ方(操作のまとめ)。はじめてホールに着いたときに1回だけカードで出す。「このギャラリーについて」にも同じ内容
 const HOWTO = TOUCH ? [
   ['👆','画面をなぞる','まわりを見回す'],
   ['🚪','扉をタップ','部屋に入る'],
@@ -613,7 +613,7 @@ function updateGuides(){
   hint.classList.toggle('nudge', mode==='room' && performance.now() < nudgeUntil);
   if(text) hint.textContent = text;
   hint.style.opacity = guidesOn && text && !howtoOpen ? 1 : 0;
-  // 見回しの手本は、あそびかたのカードを見た回には出さない(内容が重なるため)
+  // 見回しの手本は、楽しみ方のカードを見た回には出さない(内容が重なるため)
   swipe.classList.toggle('on', guidesOn && !howtoOpen && !skipSwipe && !learned.swipe && (mode==='hall' || mode==='room'));
 }
 function setHint(on){ guidesOn = on; pad.classList.toggle('on', on); $('back').classList.toggle('on', on); updateGuides(); }
