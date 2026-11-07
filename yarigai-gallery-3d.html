@@ -67,6 +67,9 @@
   #swipe .hand{font-size:46px;line-height:1;animation:swipeHand 1.8s ease-in-out infinite;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25))}
   #swipe .txt{padding:7px 16px;border-radius:999px;background:rgba(255,255,255,.9);font-size:13px;letter-spacing:.06em;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.15);max-width:86vw}
   @keyframes swipeHand{0%,100%{transform:translateX(-42px) rotate(-10deg)}50%{transform:translateX(42px) rotate(10deg)}}
+  #buddyNote{position:fixed;left:50%;top:50%;max-width:270px;padding:12px 16px;border:2px solid var(--gold);border-radius:16px;background:rgba(255,253,246,.96);color:var(--ink);font-size:14px;line-height:1.7;letter-spacing:.04em;text-align:left;box-shadow:0 5px 20px rgba(0,0,0,.2);opacity:0;transform:translate(-50%,calc(-100% - 8px));transition:opacity .2s,transform .2s;pointer-events:none;z-index:8}
+  #buddyNote::after{content:'';position:absolute;left:50%;bottom:-10px;width:16px;height:16px;margin-left:-8px;background:inherit;border-right:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(45deg)}
+  #buddyNote.on{opacity:1;transform:translate(-50%,calc(-100% - 16px))}
   #hint{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.8);font-size:12px;opacity:0;transition:opacity .6s;white-space:nowrap;pointer-events:none}
   #back{position:fixed;left:12px;bottom:14px;padding:9px 18px;border-radius:999px;background:#fff;border:1.5px solid var(--gold);font-size:14px;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.18);display:none}
   #back.on{display:block}
@@ -84,6 +87,7 @@
     #intro p{font-size:13px;letter-spacing:.12em}
     #modal{padding:8px}
     #modal .card{padding:12px 12px 10px}
+    #buddyNote{max-width:220px;padding:10px 13px;font-size:13px}
   }
   #modal{position:fixed;inset:0;background:rgba(40,52,46,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
   #modal.on{display:flex}
@@ -104,6 +108,7 @@
   /* 通常版(v2.0)の「このギャラリーについて」と同じ見た目 */
   #about h1{font-family:'Yu Mincho','Hiragino Mincho ProN',serif;font-weight:normal;font-size:24px;letter-spacing:.08em;color:#31473f;margin:8px 0 0;text-align:center;clear:both}
   #about .lead{text-align:center;color:#63736b;font-size:13px;margin:4px 0 16px}
+  #about .howto-lead{color:#63736b;font-size:13px;margin:4px 0 10px}
   #about section{border-top:1px solid #ddd6c2;padding:14px 2px}
   #about h2{font-family:'Yu Mincho','Hiragino Mincho ProN',serif;font-weight:normal;font-size:17px;letter-spacing:.06em;color:#31473f;margin:0 0 6px}
   #about h2 small{display:block;font:9px Georgia,serif;letter-spacing:.2em;color:#7b6942;margin-bottom:2px}
@@ -137,7 +142,8 @@
   <h1 id="aboutTitle">やりがいギャラリー</h1>
   <p class="lead">精神科看護師のやりがいに、気づき、味わい、整え、育てていく小さなギャラリー</p>
   <section>
-    <h2><small>HOW TO VISIT</small>3Dの楽しみ方（操作）</h2>
+    <h2><small>HOW TO VISIT</small>操作方法</h2>
+    <p class="howto-lead">以下の操作で作品の前まで移動して鑑賞してください</p>
     <div id="aboutHowto"></div>
   </section>
   <section>
@@ -179,6 +185,7 @@
   <button id="howtoStart" type="button">はじめる</button>
 </div></div>
 <div id="swipe" aria-hidden="true"><div class="hand">👆</div><div class="txt"></div></div>
+<div id="buddyNote" role="status" aria-live="polite">私は案内役です。<br>アバターの操作はできません。</div>
 <button id="back" type="button">← もどる</button>
 <button id="detail" type="button">詳細はタップ</button>
 <div id="pad"><button data-r="1" class="rot" aria-label="左に45度まわる">↺</button><button data-k="w" aria-label="前へ進む">▲</button><button data-r="-1" class="rot" aria-label="右に45度まわる">↻</button><button data-k="a" aria-label="左へ進む">◀</button><button data-k="s" aria-label="後ろへ進む">▼</button><button data-k="d" aria-label="右へ進む">▶</button></div>
@@ -563,6 +570,24 @@ function moveCam(to, toYaw, toPitch, ms){
 
 const $ = id => document.getElementById(id);
 const hint = $('hint'), pad = $('pad');
+let buddyNoteTimer = 0;
+function showBuddyNote(){
+  const note = $('buddyNote');
+  note.classList.add('on');
+  updateBuddyNotePosition();
+  clearTimeout(buddyNoteTimer);
+  buddyNoteTimer = setTimeout(()=>note.classList.remove('on'), 4500);
+}
+function updateBuddyNotePosition(){
+  const note = $('buddyNote');
+  if(!note.classList.contains('on')) return;
+  const p = new THREE.Vector3();
+  buddy.g.getWorldPosition(p); p.y += 1.55 * buddy.g.scale.y; p.project(camera);
+  const half = Math.min(140, innerWidth*.38);
+  const x = Math.max(half+12, Math.min(innerWidth-half-12, (p.x*.5+.5)*innerWidth));
+  const y = Math.max(100, Math.min(innerHeight-40, (-p.y*.5+.5)*innerHeight));
+  note.style.left = `${x}px`; note.style.top = `${y}px`;
+}
 /* ---------- 操作の案内 ----------
    ・その場に合った短い一言(ホール:扉、展示室:額)。一度その操作をしたら消える
    ・はじめの1回だけ、見回し(スワイプ/ドラッグ)の手本を出す。一度でも見回したら消える
@@ -702,6 +727,10 @@ function doorAt(e){
   const hit = ray.intersectObjects(doors.flatMap(d=>[d.leaf,d.inset,d.plaque,d.arrow]), false)[0];
   return hit ? hit.object.userData.door : -1;
 }
+function buddyAt(e){
+  ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
+  return ray.intersectObjects(buddy.hitMeshes, false).length > 0;
+}
 renderer.domElement.addEventListener('pointerdown', e=>{ drag = {x:e.clientX,y:e.clientY,moved:false}; renderer.domElement.setPointerCapture(e.pointerId); });
 renderer.domElement.addEventListener('pointermove', e=>{
   if(drag && (mode==='hall'||mode==='room'||mode==='viewing')){
@@ -715,6 +744,7 @@ renderer.domElement.addEventListener('pointermove', e=>{
   if(!drag && (mode==='room'||mode==='viewing')) renderer.domElement.style.cursor = workAt(e) ? 'pointer' : 'default';
 });
 renderer.domElement.addEventListener('pointerup', e=>{
+  if(drag && !drag.moved && buddyAt(e)){ showBuddyNote(); drag = null; return; }
   if(drag && !drag.moved && mode==='hall'){ const i = doorAt(e); if(i>=0){ learn('door'); enterDoor(i); } }
   if(drag && !drag.moved && (mode==='room'||mode==='viewing')){ const m = workAt(e); if(m){ roomTapped = true; nudgeUntil = 0; learn('frame'); updateGuides(); selectWork(m); } }
   drag = null;
@@ -840,9 +870,12 @@ const buddy = (()=>{
   armL.rotation.z = .18; armR.rotation.z = -.18;
   // ズボン：太めで長めの脚(左右にすき間をあけて、スカートに見えないように)
   const legL = limb(-.12, .38, .29, .085, CLOTH2, SHOE), legR = limb(.12, .38, .29, .085, CLOTH2, SHOE);
-  g.traverse(o=>{ if(o.isMesh){ o.castShadow = true; } });
+  const hitMeshes = [];
+  g.traverse(o=>{ if(o.isMesh){ o.castShadow = true; o.userData.buddy = true; hitMeshes.push(o); } });
+  // 縦長のスマートフォンでは、展示や案内を隠しすぎない大きさにする
+  g.scale.setScalar(NARROW ? .78 : 1);
   scene.add(g);
-  return {g, body, head, armL, armR, legL, legR};
+  return {g, body, head, armL, armR, legL, legR, hitMeshes};
 })();
 const BUDDY_WAIT = new THREE.Vector3(1.7, 0, 4.4);   // 最初の画面で待っている場所(建物の前の小道)
 buddy.g.position.copy(BUDDY_WAIT);
@@ -958,6 +991,7 @@ renderer.setAnimationLoop(t=>{
   const bt = backTarget();
   if(bt){ const label = '← ' + bt; if($('back').textContent !== label) $('back').textContent = label; }
   applyCam();
+  updateBuddyNotePosition();
   renderer.render(scene, camera);
 });
 </script>
