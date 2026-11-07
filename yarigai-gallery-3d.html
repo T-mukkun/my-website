@@ -749,6 +749,7 @@ renderer.domElement.addEventListener('pointerup', e=>{
   if(drag && !drag.moved && (mode==='room'||mode==='viewing')){ const m = workAt(e); if(m){ roomTapped = true; nudgeUntil = 0; learn('frame'); updateGuides(); selectWork(m); } }
   drag = null;
 });
+['pointercancel','lostpointercapture'].forEach(ev=>renderer.domElement.addEventListener(ev, ()=>{ drag = null; }));
 let viewMesh = null;
 function exitViewing(){
   mode = 'room'; viewMesh = null; $('detail').style.display = 'none'; updateGuides();
@@ -784,8 +785,20 @@ $('mclose').onclick = ()=> $('modal').classList.remove('on');
 $('modal').addEventListener('click', e=>{ if(e.target.id==='modal') $('modal').classList.remove('on'); });
 
 const keys = {};
-addEventListener('keydown', e=>{ keys[e.key.toLowerCase()] = true; });
-addEventListener('keyup',   e=>{ keys[e.key.toLowerCase()] = false; });
+const padPointers = new Map();
+function clearMovement(){
+  Object.keys(keys).forEach(k=>{ keys[k] = false; });
+  padPointers.clear();
+  drag = null;
+}
+addEventListener('keydown', e=>{
+  const k = e.key.toLowerCase();
+  if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)) e.preventDefault();
+  keys[k] = true;
+});
+addEventListener('keyup', e=>{ keys[e.key.toLowerCase()] = false; });
+addEventListener('blur', clearMovement);
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) clearMovement(); });
 // 左右に45度まわる(ボタン ↺↻ ／ キーボード Q・E)
 let turning = false;
 async function turn(dir){
@@ -798,10 +811,25 @@ async function turn(dir){
 }
 pad.querySelectorAll('button[data-r]').forEach(b=> b.addEventListener('click', ()=>turn(+b.dataset.r)));
 addEventListener('keydown', e=>{ if(e.repeat) return; const k = e.key.toLowerCase(); if(k==='q') turn(1); if(k==='e') turn(-1); });
+// 指がボタンの外へ動いた場合や、長押しが中断された場合も入力を解除する。
+function releasePadPointer(e){
+  const k = padPointers.get(e.pointerId);
+  if(!k) return;
+  padPointers.delete(e.pointerId);
+  keys[k] = Array.from(padPointers.values()).includes(k);
+}
 pad.querySelectorAll('button[data-k]').forEach(b=>{
-  b.addEventListener('pointerdown', ()=>keys[b.dataset.k]=true);
-  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev, ()=>keys[b.dataset.k]=false));
+  b.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    padPointers.set(e.pointerId, b.dataset.k);
+    keys[b.dataset.k] = true;
+    b.setPointerCapture(e.pointerId);
+  });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev, releasePadPointer));
 });
+addEventListener('pointerup', releasePadPointer);
+addEventListener('pointercancel', releasePadPointer);
+pad.addEventListener('contextmenu', e=>{ e.preventDefault(); clearMovement(); });
 
 addEventListener('resize', ()=>{
   renderer.setSize(innerWidth, innerHeight); fitCam();
