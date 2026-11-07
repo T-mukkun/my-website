@@ -874,11 +874,6 @@ const buddy = (()=>{
   // 黒髪のショート：頭に沿わせ、耳まわり・襟足を短くして額を出す
   const hair = add(new THREE.SphereGeometry(.278, 28, 18, 0, Math.PI*2, 0, Math.PI*.48), HAIR, 0, .012, -.008, head);
   hair.rotation.x = -.16;
-  // 頭頂部に小さな毛束を添えて、短髪らしい自然な凹凸をつける
-  [[-.09,.255,.06,-.25],[0,.272,.065,-.15],[.09,.252,.055,.2]].forEach(([x,y,z,tilt])=>{
-    const tuft = add(new THREE.SphereGeometry(1, 12, 8), HAIR, x, y, z, head);
-    tuft.scale.set(.065,.045,.085); tuft.rotation.z = tilt;
-  });
   [-1,1].forEach(s=>{
     add(new THREE.SphereGeometry(.028, 10, 8), EYE, s*.085, .01, .25, head);
     const ck = add(new THREE.SphereGeometry(.04, 10, 8), CHEEK, s*.15, -.06, .21, head); ck.scale.set(1, .6, .4);
