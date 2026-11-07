@@ -845,7 +845,7 @@ const buddy = (()=>{
   const g = new THREE.Group();
   const M = (c, o={}) => new THREE.MeshStandardMaterial({color:c, roughness:.75, metalness:0, ...o});
   // 青いスクラブ(上下)、白い靴、黒ぶちの四角い眼鏡
-  const SKIN = M(0xf7dcc8), CLOTH = M(0x6f9fca), CLOTH2 = M(0x5b88b3), TRIM = M(0x4f79a3), HAIR = M(0x8a6b58, {roughness:.9}),
+  const SKIN = M(0xf7dcc8), CLOTH = M(0x6f9fca), CLOTH2 = M(0x5b88b3), TRIM = M(0x4f79a3), HAIR = M(0x202124, {roughness:.9}),
         SHOE = M(0xf4f2ee), FRAME = M(0x1f1f22, {roughness:.35}), EYE = new THREE.MeshBasicMaterial({color:0x3b3a36}),
         CHEEK = new THREE.MeshBasicMaterial({color:0xf4a9a8, transparent:true, opacity:.7});
   // 2点の間をつなぐ細い棒(眼鏡のつるに使う)
@@ -871,7 +871,14 @@ const buddy = (()=>{
   // 頭・髪・顔
   const head = new THREE.Group(); head.position.y = 1.1; body.add(head);
   add(new THREE.SphereGeometry(.27, 28, 20), SKIN, 0, 0, 0, head);
-  const hair = add(new THREE.SphereGeometry(.285, 28, 20, 0, Math.PI*2, 0, Math.PI*.55), HAIR, 0, .02, -.02, head); hair.rotation.x = -.35;
+  // 黒髪のショート：頭に沿わせ、耳まわり・襟足を短くして額を出す
+  const hair = add(new THREE.SphereGeometry(.278, 28, 18, 0, Math.PI*2, 0, Math.PI*.48), HAIR, 0, .012, -.008, head);
+  hair.rotation.x = -.16;
+  // 頭頂部に小さな毛束を添えて、短髪らしい自然な凹凸をつける
+  [[-.09,.255,.06,-.25],[0,.272,.065,-.15],[.09,.252,.055,.2]].forEach(([x,y,z,tilt])=>{
+    const tuft = add(new THREE.SphereGeometry(1, 12, 8), HAIR, x, y, z, head);
+    tuft.scale.set(.065,.045,.085); tuft.rotation.z = tilt;
+  });
   [-1,1].forEach(s=>{
     add(new THREE.SphereGeometry(.028, 10, 8), EYE, s*.085, .01, .25, head);
     const ck = add(new THREE.SphereGeometry(.04, 10, 8), CHEEK, s*.15, -.06, .21, head); ck.scale.set(1, .6, .4);
