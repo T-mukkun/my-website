@@ -784,16 +784,18 @@ function exitViewing(){
 }
 // 額の正面まで歩いて近づく。近づいた状態でもう一度押す(または「詳細を見る」)と詳細が開く
 async function selectWork(mesh){
-  if(mode==='viewing' && viewMesh===mesh){ openWork(mesh.userData.work); return; }
   if(mode!=='room' && mode!=='viewing') return;
-  mode = 'busy'; $('detail').style.display = 'none';
   const f = mesh.parent, p = new THREE.Vector3(); f.getWorldPosition(p);
   const ry = f.rotation.y;
   const dist = portrait() ? 1.7 : 2.6;   // 縦長の画面では額にもっと寄る
-  await moveCam(new THREE.Vector3(p.x+Math.sin(ry)*dist, 1.6, p.z+Math.cos(ry)*dist), ry, .12, 1100);
+  const front = {p:new THREE.Vector3(p.x+Math.sin(ry)*dist, 1.6, p.z+Math.cos(ry)*dist), yaw:ry, pitch:.12};
+  // 同じ作品でも、見回した後はまず正面へ戻す。正面にいるときだけ詳細を開く。
+  if(mode==='viewing' && viewMesh===mesh && atPoint(front)){ openWork(mesh.userData.work); return; }
+  mode = 'busy'; $('detail').style.display = 'none';
+  await moveCam(front.p, front.yaw, front.pitch, 1100);
   mode = 'viewing'; viewMesh = mesh; $('detail').style.display = 'block'; updateGuides();
 }
-$('detail').onclick = ()=>{ if(viewMesh) openWork(viewMesh.userData.work); };
+$('detail').onclick = ()=>{ if(viewMesh) selectWork(viewMesh); };
 function workAt(e){
   if(roomIdx<0) return null;
   ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
