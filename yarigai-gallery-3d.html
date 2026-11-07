@@ -131,7 +131,7 @@
 <div id="roomtitle"></div>
 <div id="titleScreen" aria-hidden="true"><div class="inner">
   <small>The Yarigai Gallery</small>
-  <h1><span class="logo" data-text="やりがいギャラリー">やりがいギャラリー</span><span class="ver">v3.0</span></h1>
+  <h1><span class="logo" data-text="やりがいギャラリー">やりがいギャラリー</span><span class="ver">v3.1</span></h1>
   <div class="rule"><span>✦</span></div>
 </div></div>
 <div id="intro"><button id="enter">コチラから入館→</button><p>やりがいにつながった物語を作品として展示</p></div>
@@ -171,7 +171,8 @@
     制作：向畑 毅（兵庫医科大学 看護学部 精神看護学領域）<br>
     公開日：2026年10月18日　版：公開版 v1.0<br>
     更新日：2026年11月5日　版：公開版 v2.0<br>
-    更新日：2026年11月6日　版：公開版 v3.0
+    更新日：2026年11月6日　版：公開版 v3.0<br>
+    更新日：2026年11月8日　版：公開版 v3.1
   </div>
   <p class="to2d"><a href="hatarakigai-gallery.html">通常版（2D）のやりがいギャラリーで見る</a></p>
 </div></div>
@@ -322,7 +323,7 @@ box(FW+.8, .35, 1.4, CREAM2, 0, FH+.17, .2);
     g.textAlign='center'; g.textBaseline='middle';
     g.fillStyle='#8f7230'; g.font=`italic ${h*.17}px ${SERIF}`; g.fillText('The Yarigai Gallery', w/2, h*.17);
     // タイトルと版(通常版の看板と同じく、タイトルの右に小さく)を、まとめて中央にそろえる
-    const TITLE = 'や り が い ギ ャ ラ リ ー', VER = 'v3.0', GAP = h*.1;
+    const TITLE = 'や り が い ギ ャ ラ リ ー', VER = 'v3.1', GAP = h*.1;
     const TF = `bold ${h*.5}px ${SERIF}`, VF = `500 ${h*.2}px Georgia,serif`;
     g.font = TF; const tw = g.measureText(TITLE).width;
     g.font = VF; const vw = g.measureText(VER).width;
@@ -602,7 +603,7 @@ function learn(k){
   try{ localStorage.setItem(LEARN_KEY, JSON.stringify(learned)); }catch(e){}
   updateGuides();
 }
-// 楽しみ方(操作のまとめ)。はじめてホールに着いたときに1回だけカードで出す。「このギャラリーについて」にも同じ内容
+// 楽しみ方(操作のまとめ)。ページを開くたび、最初の入館時に表示する。「このギャラリーについて」にも同じ内容
 const HOWTO = TOUCH ? [
   ['👆','画面をなぞる','まわりを見回す'],
   ['🚪','扉をタップ','部屋に入る'],
@@ -619,8 +620,8 @@ const HOWTO = TOUCH ? [
 const howtoHTML = '<ul class="howto">' + HOWTO.map(([ic,a,b])=>`<li><span class="ic" aria-hidden="true">${ic}</span><b>${a}</b><span class="what">${b}</span></li>`).join('') + '</ul>';
 $('howtoList').innerHTML = howtoHTML;
 $('aboutHowto').innerHTML = howtoHTML;
-let howtoOpen = false, skipSwipe = false;
-function showHowto(){ howtoOpen = true; skipSwipe = true; $('howto').classList.add('on'); updateGuides(); $('howtoStart').focus(); }
+let howtoOpen = false, skipSwipe = false, howtoShownThisVisit = false;
+function showHowto(){ howtoShownThisVisit = true; howtoOpen = true; skipSwipe = true; $('howto').classList.add('on'); updateGuides(); $('howtoStart').focus(); }
 $('howtoStart').onclick = ()=>{ howtoOpen = false; $('howto').classList.remove('on'); learn('howto'); updateGuides(); };
 
 if(!TOUCH) $('detail').textContent = '詳細はクリック';   // 額の前に出るボタン(パソコンでは「クリック」)
@@ -653,7 +654,7 @@ $('enter').onclick = async ()=>{
   tween(1400, k=>{ frontL.rotation.y = 1.7*k; frontR.rotation.y = -1.7*k; });
   await moveCam(hallPoint().p, 0, 0, 3200);
   mode='hall'; buddyEntering = false; setHint(true);
-  if(!learned.howto) showHowto();
+  if(!howtoShownThisVisit) showHowto();
 };
 
 async function enterDoor(i){
