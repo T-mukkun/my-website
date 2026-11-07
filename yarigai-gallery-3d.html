@@ -603,7 +603,7 @@ function learn(k){
   try{ localStorage.setItem(LEARN_KEY, JSON.stringify(learned)); }catch(e){}
   updateGuides();
 }
-// 楽しみ方(操作のまとめ)。ページを開くたび、最初の入館時に表示する。「このギャラリーについて」にも同じ内容
+// 楽しみ方(操作のまとめ)。「外へ（正面）」を表示するたびに出す。「このギャラリーについて」にも同じ内容
 const HOWTO = TOUCH ? [
   ['👆','画面をなぞる','まわりを見回す'],
   ['🚪','扉をタップ','部屋に入る'],
@@ -620,8 +620,8 @@ const HOWTO = TOUCH ? [
 const howtoHTML = '<ul class="howto">' + HOWTO.map(([ic,a,b])=>`<li><span class="ic" aria-hidden="true">${ic}</span><b>${a}</b><span class="what">${b}</span></li>`).join('') + '</ul>';
 $('howtoList').innerHTML = howtoHTML;
 $('aboutHowto').innerHTML = howtoHTML;
-let howtoOpen = false, skipSwipe = false, howtoShownThisVisit = false;
-function showHowto(){ howtoShownThisVisit = true; howtoOpen = true; skipSwipe = true; $('howto').classList.add('on'); updateGuides(); $('howtoStart').focus(); }
+let howtoOpen = false, skipSwipe = false;
+function showHowto(){ howtoOpen = true; skipSwipe = true; $('howto').classList.add('on'); updateGuides(); $('howtoStart').focus(); }
 $('howtoStart').onclick = ()=>{ howtoOpen = false; $('howto').classList.remove('on'); learn('howto'); updateGuides(); };
 
 if(!TOUCH) $('detail').textContent = '詳細はクリック';   // 額の前に出るボタン(パソコンでは「クリック」)
@@ -654,7 +654,6 @@ $('enter').onclick = async ()=>{
   tween(1400, k=>{ frontL.rotation.y = 1.7*k; frontR.rotation.y = -1.7*k; });
   await moveCam(hallPoint().p, 0, 0, 3200);
   mode='hall'; buddyEntering = false; setHint(true);
-  if(!howtoShownThisVisit) showHowto();
 };
 
 async function enterDoor(i){
@@ -716,6 +715,7 @@ async function goBack(){
     const intro = $('intro'); intro.style.display = ''; requestAnimationFrame(()=>{ intro.style.opacity = 1; });
     $('titleScreen').classList.remove('hide');
     outsideT0 = performance.now(); mode='outside';
+    showHowto();
   }
 }
 $('back').onclick = goBack;
@@ -970,6 +970,9 @@ function updateBuddy(dt, t){
   buddy.body.scale.set(1 - breathe*.5, 1 + breathe, 1 - breathe*.5);
   buddy.head.rotation.z = Math.sin(t/1600) * .05 * (1 - walk);   // 止まっているときは小さく首をかしげる
 }
+
+// 初回も「外へ（正面）」画面で説明する。日付や過去の閲覧記録では省略しない。
+showHowto();
 
 /* ---------- ループ ---------- */
 let last = performance.now();
