@@ -603,7 +603,7 @@ function learn(k){
   try{ localStorage.setItem(LEARN_KEY, JSON.stringify(learned)); }catch(e){}
   updateGuides();
 }
-// 楽しみ方(操作のまとめ)。入館後のホールに着くたびに表示する。「このギャラリーについて」にも同じ内容
+// 楽しみ方は入館時の画面で表示。「はじめる」でドア前へ進む。
 const HOWTO = TOUCH ? [
   ['👆','画面をなぞる','まわりを見回す'],
   ['🚪','扉をタップ','部屋に入る'],
@@ -621,8 +621,15 @@ const howtoHTML = '<ul class="howto">' + HOWTO.map(([ic,a,b])=>`<li><span class=
 $('howtoList').innerHTML = howtoHTML;
 $('aboutHowto').innerHTML = howtoHTML;
 let howtoOpen = false, skipSwipe = false;
+let hallStage = 'entry'; // entry: 入館時の説明画面 / doors: ドア前
 function showHowto(){ howtoOpen = true; skipSwipe = true; $('howto').classList.add('on'); updateGuides(); $('howtoStart').focus(); }
-$('howtoStart').onclick = ()=>{ howtoOpen = false; $('howto').classList.remove('on'); learn('howto'); updateGuides(); };
+$('howtoStart').onclick = async ()=>{
+  if(!howtoOpen || mode!=='hall') return;
+  howtoOpen = false; $('howto').classList.remove('on'); learn('howto');
+  clearMovement(); setHint(false); mode='busy';
+  const c = doorPoint(); await moveCam(c.p, c.yaw, c.pitch, 1400);
+  hallStage='doors'; mode='hall'; setHint(true);
+};
 
 if(!TOUCH) $('detail').textContent = '詳細はクリック';   // 額の前に出るボタン(パソコンでは「クリック」)
 const swipe = $('swipe');
@@ -653,12 +660,12 @@ $('enter').onclick = async ()=>{
   await moveCam(new THREE.Vector3(0,1.7,6), 0, .08, 1800);
   tween(1400, k=>{ frontL.rotation.y = 1.7*k; frontR.rotation.y = -1.7*k; });
   await moveCam(hallPoint().p, 0, 0, 3200);
-  mode='hall'; buddyEntering = false; setHint(true);
+  hallStage='entry'; mode='hall'; buddyEntering = false; setHint(true);
   showHowto();
 };
 
 async function enterDoor(i){
-  if(mode!=='hall') return; mode='busy'; setHint(false);
+  if(mode!=='hall' || hallStage!=='doors' || howtoOpen) return; mode='busy'; setHint(false);
   const d = doors[i], cx = d.t.cx;
   await moveCam(new THREE.Vector3(cx,1.6,HALL_BACK+2.4), 0, 0, 1000);
   await tween(900, k=>{ d.pivot.rotation.y = 1.65*k; });
@@ -668,18 +675,25 @@ async function enterDoor(i){
 }
 
 /* ---------- 「もどる」ボタン ----------
-   戻るポイントは3つ： ①正面(最初の画面) ②建物に入ったところ ③部屋に入ったところ
+   戻るポイント：正面 → 入館時の説明画面 → ドア前 → 部屋の入口
    押すたびに、ひとつ前のポイントへ戻る。
    ・ポイントから動いている(歩いた・向きを変えた・額の前にいる)ときは、まず今いる場所のポイントへ
-   ・ポイントにいるときは、ひとつ外側のポイントへ(③→②→①) */
+   ・ポイントにいるときは、ひとつ外側のポイントへ */
 const START_Z = portrait() ? 19 : 21;
-// 建物に入ったところ。縦長(スマホ)では扉が小さく見えるので、扉に近い位置にする
-const hallPoint = ()=>({p:new THREE.Vector3(0,1.6, portrait() ? -4.5 : -2), yaw:0, pitch:0});
+// 入館直後の説明位置。縦長画面でも「はじめる」後に前進できる位置にする
+const hallPoint = ()=>({p:new THREE.Vector3(0,1.6, portrait() ? -.9 : -2), yaw:0, pitch:0});
+// 看板を含む3つの扉を画面幅の約90%に収める。縦方向にも余白を確保する。
+function doorPoint(){
+  const tanV = Math.tan(camera.fov*Math.PI/360);
+  const distance = Math.max(12.4/(2*tanV*camera.aspect*.9), 4.6/(2*tanV*.78));
+  return {p:new THREE.Vector3(0,2.35,HALL_BACK+Math.min(13.5,distance)+.35), yaw:0, pitch:0};
+}
 const roomPoint = i=>({p:new THREE.Vector3(doors[i].t.cx,1.6,HALL_BACK-3), yaw:0, pitch:0});
 const atPoint = c => pos.distanceTo(c.p) < .05 && Math.abs(angDiff(yaw,c.yaw)) < .02 && Math.abs(pitch-c.pitch) < .02;
 function backTarget(){   // ボタンに出す行き先
   if(mode==='viewing') return '部屋の入口へ';
-  if(mode==='room') return atPoint(roomPoint(roomIdx)) ? 'ホールへ' : '部屋の入口へ';
+  if(mode==='room') return atPoint(roomPoint(roomIdx)) ? 'ドア前へ' : '部屋の入口へ';
+  if(mode==='hall' && hallStage==='doors') return atPoint(doorPoint()) ? '入館時の画面へ' : 'ドア前へ';
   if(mode==='hall') return atPoint(hallPoint()) ? '外へ（正面）' : '建物の入口へ';
   return null;
 }
@@ -698,15 +712,21 @@ async function goBack(){
   if(mode==='viewing') exitViewing();
   if(mode==='room'){
     if(!atPoint(roomPoint(roomIdx))) return goPoint(roomPoint(roomIdx));
-    // ③部屋の入口 → ②建物の入口：後ろ向きに部屋を出て、扉を閉め、ホールの入口へ
+    // 部屋の入口 → ドア前：後ろ向きに部屋を出て、扉を閉める
     mode='busy'; setHint(false); $('roomtitle').style.display='none';
     const d = doors[roomIdx];
     await moveCam(new THREE.Vector3(d.t.cx,1.6,HALL_BACK+2.4), 0, 0, 1600);
     tween(800, k=>{ d.pivot.rotation.y = 1.65*(1-k); });
-    const c = hallPoint(); await moveCam(c.p, c.yaw, c.pitch, 1400);
-    mode='hall'; roomIdx=-1; setHint(true); showHowto(); return;
+    const c = doorPoint(); await moveCam(c.p, c.yaw, c.pitch, 1400);
+    hallStage='doors'; mode='hall'; roomIdx=-1; setHint(true); return;
   }
   if(mode==='hall'){
+    if(hallStage==='doors'){
+      if(!atPoint(doorPoint())) return goPoint(doorPoint());
+      clearMovement(); setHint(false); mode='busy';
+      const c = hallPoint(); await moveCam(c.p,c.yaw,c.pitch,1400);
+      hallStage='entry'; mode='hall'; setHint(true); showHowto(); return;
+    }
     if(!atPoint(hallPoint())) return goPoint(hallPoint());
     // ②建物の入口 → ①正面：後ろ向きに建物を出て、玄関の扉を閉め、最初の位置へ
     mode='busy'; setHint(false);
@@ -1028,3 +1048,4 @@ renderer.setAnimationLoop(t=>{
 </script>
 </body>
 </html>
+
