@@ -84,7 +84,7 @@
     #howto{padding-bottom:142px}
     #howto .card{max-height:calc(100vh - 158px);max-height:calc(100dvh - 158px);overflow-y:auto}
     #howto.on ~ #pad.on{z-index:10;pointer-events:none;outline:3px solid var(--gold);outline-offset:5px;border-radius:12px}
-    #howto.on ~ #pad.on::before{content:'操作ボタン →';position:absolute;right:calc(100% + 14px);top:50%;transform:translateY(-50%);white-space:nowrap;padding:8px;border:2px solid var(--gold);border-radius:10px;background:#fffdf6;color:var(--ink);font-size:14px;font-weight:bold;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+    #howto.on ~ #pad.on::before{content:'移動ボタン →';position:absolute;right:calc(100% + 14px);top:50%;transform:translateY(-50%);white-space:nowrap;padding:8px;border:2px solid var(--gold);border-radius:10px;background:#fffdf6;color:var(--ink);font-size:14px;font-weight:bold;box-shadow:0 3px 10px rgba(0,0,0,.2)}
   }
   #mimg{max-height:60vh;object-fit:contain;background:#f4efe2}
   @media (max-width:640px){
@@ -612,15 +612,15 @@ function learn(k){
 }
 // 楽しみ方は入館時の画面で表示。「はじめる」でドア前へ進む。
 const HOWTO = TOUCH ? [
-  ['👆','画面をドラッグして見回す','指を画面につけたまま動かしてください。'],
+  ['👆','見回す：画面をドラッグ','指を画面につけたまま動かすと、その場で見回せます。'],
+  ['✥','移動する：右下の矢印ボタン','▲▼◀▶を押すと、前後左右に進めます。'],
   ['🚪','扉をタップ','部屋に入る'],
-  ['↺▲↻','右下のボタン','歩く・45度まわる'],
   ['←','もどる','ひとつ前の場所へ'],
   ['🖼️','作品をタップ','遠くからでも目の前へ'],
 ] : [
-  ['🖱️','画面をドラッグして見回す','マウスの左ボタンを押したまま動かしてください。'],
+  ['🖱️','見回す：画面をドラッグ','左ボタンを押したまま動かすと、その場で見回せます。'],
+  ['⌨️','移動する：WASD／矢印キー','キーを押すと、前後左右に進めます。'],
   ['🚪','扉をクリック','部屋に入る'],
-  ['⌨️','WASD／矢印キー','歩く（Q／Eで45度まわる）'],
   ['←','もどる','ひとつ前の場所へ'],
   ['🖼️','作品をクリック','遠くからでも目の前へ'],
 ];
@@ -641,8 +641,8 @@ $('howtoStart').onclick = async ()=>{
 if(!TOUCH) $('detail').textContent = '詳細はクリック';   // 額の前に出るボタン(パソコンでは「クリック」)
 const swipe = $('swipe');
 swipe.querySelector('.txt').textContent = TOUCH
-  ? '画面をドラッグして見回す（指を画面につけたまま動かしてください）'
-  : 'ドラッグで見回し ・ WASD／矢印キーで歩く ・ Q／Eで45度まわる';
+  ? '見回す：画面をドラッグ ／ 移動する：右下の矢印ボタン'
+  : '見回す：画面をドラッグ ／ 移動する：WASD・矢印キー';
 let guidesOn = false;
 // 展示室で、額をタップせずに歩いて近づこうとしている人に、一言をもう一度目立たせて出す(部屋に入るたびに1回まで)
 let roomWalk = 0, roomTapped = false, nudged = false, nudgeUntil = 0;
