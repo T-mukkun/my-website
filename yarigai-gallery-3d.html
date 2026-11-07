@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- タイトルロゴ用の丸ゴシック(太字)。使う文字だけ読み込む -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@900&amp;text=%E3%82%84%E3%82%8A%E3%81%8C%E3%81%84%E3%82%AE%E3%83%A3%E3%83%A9%E3%83%AA%E3%83%BC&amp;display=swap" rel="stylesheet">
+<title>やりがいギャラリー 3D</title>
+<style>
+  :root{
+    --cream:#f6f1e3; --gold:#b8964f; --ink:#3b4a42; --sage:#9fbba9;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#cfe3ef;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;color:var(--ink)}
+  canvas{display:block;touch-action:none}
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 62%,rgba(255,240,225,.28) 100%)}
+  #intro{position:fixed;left:0;right:0;bottom:7vh;text-align:center;transition:opacity .6s}
+  #intro p{margin:14px 0 0;font-size:15px;letter-spacing:.2em;color:#5a6a60}
+  button{font-family:inherit;cursor:pointer;border:0}
+  #enter{padding:12px 26px;border-radius:12px;background:#fff;color:var(--ink);font-size:16px;font-weight:bold;letter-spacing:.1em;box-shadow:0 4px 14px rgba(0,0,0,.2);border:2px solid var(--gold)}
+  #enter:hover{background:#fffaf0}
+  /* 最初の画面のタイトル(空の部分)。ゆっくり浮かび上がり、ふわふわ漂う */
+  #titleScreen{position:fixed;left:0;right:0;top:clamp(56px,11vh,120px);text-align:center;pointer-events:none;transition:opacity .8s ease,transform .8s ease;z-index:2}
+  #titleScreen.hide{opacity:0;transform:translateY(-14px)}
+  #titleScreen .inner{display:inline-block;animation:titleIn 1.6s ease-out both, titleFloat 6s ease-in-out 1.6s infinite}
+  #titleScreen small{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:clamp(13px,2.2vh,18px);letter-spacing:.18em;color:#8f7230;text-shadow:0 0 10px rgba(255,255,255,.9)}
+  /* ゲームのロゴ風：太い丸ゴシック、緑のグラデーション、白い太ふち、金色の影 */
+  #titleScreen h1{margin:6px 0 0;font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic UI",sans-serif;font-weight:900;font-size:min(clamp(26px,5.8vh,56px),7.4vw);letter-spacing:.12em;white-space:nowrap;line-height:1.25}
+  /* 3枚重ね：本体(場所取り・透明) / ::before 白ふち＋金の影 / ::after 緑のグラデーション文字 */
+  #titleScreen h1 .logo{position:relative;display:inline-block;color:transparent}
+  #titleScreen h1 .logo::before,#titleScreen h1 .logo::after{content:attr(data-text);position:absolute;left:0;top:0;white-space:nowrap}
+  #titleScreen h1 .logo::before{color:#fffdf4;-webkit-text-stroke:.22em #fffdf4;
+    text-shadow:0 .1em 0 #d2b06a,0 .14em 0 #b8964f,0 .2em .35em rgba(120,95,40,.35),0 0 .6em rgba(255,255,255,.9)}
+  #titleScreen h1 .logo::after{color:transparent;background:linear-gradient(180deg,#78ad94 0%,#46765f 55%,#2f5446 100%);-webkit-background-clip:text;background-clip:text}
+  #titleScreen h1 .ver{display:inline-block;margin-left:.3em;padding:.12em .45em .14em;border-radius:999px;font-family:Georgia,serif;font-style:italic;font-weight:bold;font-size:max(.36em,12px);letter-spacing:.04em;vertical-align:.6em;color:#fff;
+    background:linear-gradient(135deg,#e2c27a,#b8964f);border:2px solid #fffdf4;box-shadow:0 2px 6px rgba(143,114,48,.4)}
+  #titleScreen .rule{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;color:#b8964f;font-size:13px}
+  #titleScreen .rule::before,#titleScreen .rule::after{content:'';width:clamp(40px,12vw,90px);height:1px;background:linear-gradient(90deg,transparent,#b8964f,transparent)}
+  #titleScreen .rule span{animation:twinkle 2.4s ease-in-out infinite}
+  @keyframes titleIn{from{opacity:0;transform:translateY(14px) scale(.96);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+  @keyframes titleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  @keyframes twinkle{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+  @media (prefers-reduced-motion:reduce){#titleScreen .inner,#titleScreen .rule span{animation:none}}
+  @media (orientation:landscape) and (max-height:520px){#titleScreen{top:46px}#titleScreen h1{font-size:24px}#titleScreen .rule{display:none}}
+  /* あそびかた(操作のまとめ) */
+  #howto{position:fixed;inset:0;background:rgba(40,52,46,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+  #howto.on{display:flex}
+  #howto .card{width:100%;max-width:400px;background:#fffdf6;border:2px solid var(--gold);border-radius:16px;padding:18px 18px 16px;box-shadow:0 10px 40px rgba(0,0,0,.3);text-align:center}
+  #howto h2{margin:0 0 10px;font-size:18px;letter-spacing:.2em;font-weight:normal}
+  #howto .note{margin:10px 0 12px;font-size:11.5px;color:#7a8a80}
+  #howtoStart{padding:10px 34px;border-radius:12px;background:#fff;border:2px solid var(--gold);font-size:15px;font-weight:bold;letter-spacing:.15em;color:var(--ink);box-shadow:0 3px 10px rgba(0,0,0,.15)}
+  ul.howto{list-style:none;margin:0;padding:0;text-align:left}
+  ul.howto li{display:grid;grid-template-columns:3.4em 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:7px 4px;border-top:1px solid #ece4cf}
+  ul.howto li:first-child{border-top:0}
+  ul.howto .ic{grid-row:1 / span 2;text-align:center;font-size:20px;line-height:1;white-space:nowrap;color:#8f6a2a}
+  ul.howto b{font-size:14px;letter-spacing:.04em}
+  ul.howto .what{font-size:12.5px;color:#5a6a60}
+  /* 歩いて近づこうとしている人への一言(目立たせる) */
+  #hint.nudge{background:#fffaf0;border:2px solid var(--gold);color:var(--ink);font-size:13px;font-weight:bold;padding:8px 18px;box-shadow:0 4px 14px rgba(143,114,48,.3);animation:nudge .6s ease-in-out 3}
+  @keyframes nudge{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+  /* はじめの1回だけ出す「見回せます」の手本 */
+  #swipe{position:fixed;left:50%;top:70%;transform:translate(-50%,-50%);display:none;flex-direction:column;align-items:center;gap:10px;pointer-events:none;z-index:4}
+  #swipe.on{display:flex}
+  #swipe .hand{font-size:46px;line-height:1;animation:swipeHand 1.8s ease-in-out infinite;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25))}
+  #swipe .txt{padding:7px 16px;border-radius:999px;background:rgba(255,255,255,.9);font-size:13px;letter-spacing:.06em;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.15);max-width:86vw}
+  @keyframes swipeHand{0%,100%{transform:translateX(-42px) rotate(-10deg)}50%{transform:translateX(42px) rotate(10deg)}}
+  #hint{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.8);font-size:12px;opacity:0;transition:opacity .6s;white-space:nowrap;pointer-events:none}
+  #back{position:fixed;left:12px;bottom:14px;padding:9px 18px;border-radius:999px;background:#fff;border:1.5px solid var(--gold);font-size:14px;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.18);display:none}
+  #back.on{display:block}
+  #detail{position:fixed;left:50%;bottom:108px;transform:translateX(-50%);padding:9px 20px;border-radius:12px;background:#fff;border:2px solid var(--gold);white-space:nowrap;font-size:14px;font-weight:bold;letter-spacing:.08em;color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.2);display:none;z-index:5}
+  #roomtitle{position:fixed;top:12px;left:50%;transform:translateX(-50%);padding:8px 22px;border-radius:12px;background:rgba(255,255,255,.88);font-size:16px;letter-spacing:.12em;display:none;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  #pad{position:fixed;right:14px;bottom:14px;display:none;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:6px}
+  #pad button{border-radius:12px;background:rgba(255,255,255,.85);font-size:20px;box-shadow:0 2px 6px rgba(0,0,0,.15);touch-action:none;color:var(--ink)}
+  #pad button.rot{background:rgba(255,250,235,.92);border:1.5px solid var(--gold);font-size:22px;font-weight:bold}
+  @media (pointer:coarse){#pad.on{display:grid}}
+  #mimg{max-height:60vh;object-fit:contain;background:#f4efe2}
+  @media (max-width:640px){
+    #roomtitle{top:46px;font-size:14px;padding:6px 16px}
+    #hint{top:auto;bottom:auto;top:84px;white-space:normal;text-align:center;width:max-content;max-width:88vw;font-size:11px}
+    #enter{font-size:15px;padding:11px 22px}
+    #intro p{font-size:13px;letter-spacing:.12em}
+    #modal{padding:8px}
+    #modal .card{padding:12px 12px 10px}
+  }
+  #modal{position:fixed;inset:0;background:rgba(40,52,46,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+  #modal.on{display:flex}
+  #modal .card{position:relative;max-width:560px;max-height:100%;overflow:auto;background:#fffdf6;border:2px solid var(--gold);border-radius:14px;padding:18px 18px 14px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+  #modal img{display:block;width:100%;height:auto;border-radius:6px}
+  #modal h2{margin:12px 0 6px;font-size:18px;letter-spacing:.08em}
+  #mtoggle{display:block;margin:8px 0;padding:8px 16px;border-radius:999px;background:#fff;border:1.5px solid var(--gold);font-size:14px;color:var(--ink)}
+  #mtoggle span{display:inline-block;transition:transform .2s;font-size:11px}
+  #mtoggle[aria-expanded="true"] span{transform:rotate(180deg)}
+  #modal p{margin:0 0 8px;font-size:14px;line-height:1.8;white-space:pre-wrap}
+  #modal small{color:#8a9a8f}
+  #mclose{position:sticky;top:0;float:right;margin:-6px -6px 6px 6px;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--gold);font-size:12px}
+  /* このギャラリーについて(倫理的な配慮) */
+  #aboutBtn{position:fixed;top:12px;right:12px;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.85);font-size:12px;letter-spacing:.08em;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.12);z-index:6}
+  #about{position:fixed;inset:0;background:rgba(40,52,46,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:11}
+  #about.on{display:flex}
+  #about .card{position:relative;max-width:600px;max-height:100%;overflow:auto;background:#fbf9f2;border:2px solid var(--gold);border-radius:14px;padding:18px 20px 16px;box-shadow:0 10px 40px rgba(0,0,0,.3);font-family:system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;line-height:1.75;color:#3f4a44}
+  /* 通常版(v2.0)の「このギャラリーについて」と同じ見た目 */
+  #about h1{font-family:'Yu Mincho','Hiragino Mincho ProN',serif;font-weight:normal;font-size:24px;letter-spacing:.08em;color:#31473f;margin:8px 0 0;text-align:center;clear:both}
+  #about .lead{text-align:center;color:#63736b;font-size:13px;margin:4px 0 16px}
+  #about section{border-top:1px solid #ddd6c2;padding:14px 2px}
+  #about h2{font-family:'Yu Mincho','Hiragino Mincho ProN',serif;font-weight:normal;font-size:17px;letter-spacing:.06em;color:#31473f;margin:0 0 6px}
+  #about h2 small{display:block;font:9px Georgia,serif;letter-spacing:.2em;color:#7b6942;margin-bottom:2px}
+  #about p{margin:0 0 8px;font-size:14px}
+  #about p:last-child{margin-bottom:0}
+  #about .forms{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  #about .forms span{font-size:12px;border:1px solid #c9bf9f;border-radius:999px;padding:2px 12px;background:#f6f1e3;color:#5d5136}
+  #about .creation-note{border-left:3px solid #b8ad93;padding-left:12px}
+  #about .paper-link{display:inline-flex;align-items:center;min-height:32px;padding:2px 10px;margin:2px 3px;border:1px solid #b8ad93;border-radius:999px;background:#f6f1e3;color:#5d5136;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
+  #about .paper-link:hover{background:#e9dfc6}
+  #about .credit{border-top:1px solid #ddd6c2;padding-top:14px;text-align:center;font-size:12px;color:#63736b;line-height:2}
+  #about .to2d{text-align:center;font-size:13px;margin:4px 0 0}
+  #about .to2d a{color:#7a5f22}
+  #aclose{float:right;margin:-6px -6px 6px 6px;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--gold);font-size:12px}
+  #nogl{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;background:var(--cream);font-size:15px;line-height:1.9;z-index:20}
+  @media (max-width:640px){ #aboutBtn{font-size:11px;padding:5px 11px} }
+</style>
+</head>
+<body>
+<div id="roomtitle"></div>
+<div id="titleScreen" aria-hidden="true"><div class="inner">
+  <small>The Yarigai Gallery</small>
+  <h1><span class="logo" data-text="やりがいギャラリー">やりがいギャラリー</span><span class="ver">v3.0</span></h1>
+  <div class="rule"><span>✦</span></div>
+</div></div>
+<div id="intro"><button id="enter">コチラから入館→</button><p>ひとつの物語から、やりがいにふれる。</p></div>
+<button id="aboutBtn" type="button" aria-haspopup="dialog" aria-controls="about">このギャラリーについて</button>
+<div id="about" role="dialog" aria-modal="true" aria-labelledby="aboutTitle"><div class="card">
+  <button id="aclose" type="button">✕ とじる</button>
+  <!-- 説明文は通常版(hatarakigai-gallery.html)の「このギャラリーについて」と同じ。通常版を直したらここも合わせる -->
+  <h1 id="aboutTitle">やりがいギャラリー</h1>
+  <p class="lead">精神科看護師のやりがいに、気づき、味わい、整え、育てていく小さなギャラリー</p>
+  <section>
+    <h2><small>HOW TO PLAY</small>あそびかた（3Dの操作）</h2>
+    <div id="aboutHowto"></div>
+  </section>
+  <section>
+    <h2><small>ABOUT</small>このギャラリーについて</h2>
+    <p>精神科看護の仕事のなかには、患者さんとの小さなやりとり、仲間と支え合った場面、昨日より少し落ち着いて関われた自分など、見過ごされがちなやりがいがたくさんあります。</p>
+    <p>やりがいギャラリーは、そうした瞬間を作品にして展示し、訪れた人が「こんな出来事もやりがいにつながるのか」「自分にも似た経験があった」と気づくきっかけをつくる、小さなWeb上のギャラリーです。研究知見をもとにした、社会への発信の取り組みとして公開しています。</p>
+  </section>
+  <section>
+    <h2><small>HOW TO ENJOY</small>このギャラリーの楽しみ方</h2>
+    <p>作品は、物語の一場面だけを切り取った断片です。俳句を味わうように、少し立ち止まってみてください。</p>
+    <p>描かれていない前後の出来事や、そこにいた人の気持ち、そして自分自身の経験に思いを向ける。決まった答えを探すのではなく、心に残る余韻を味わうことが、このギャラリーの楽しみ方です。</p>
+  </section>
+  <section>
+    <h2><small>COMING SOON</small>準備中の作品</h2>
+    <p>3つの部屋（職場の要因・患者の要因・看護師自身の要因）に、さまざまな形の作品を準備しています。※3つの要因は捉え方によって重なり合います。</p>
+    <div class="forms" aria-label="準備中の作品の形式"><span>四コマ漫画</span><span>文章</span><span>音楽</span><span>映像</span><span>一枚絵</span><span>など</span></div>
+    <p>研究の進捗により、作品は順次公開する予定です。</p>
+  </section>
+  <section>
+    <h2><small>ETHICS</small>倫理的な配慮と根拠</h2>
+    <p class="creation-note">やりがいは、うれしい出来事だけでなく、つらさや葛藤を含んだ場面からその後生まれることもあります。現在のギャラリーでは、そうした場面をあえて取り上げず、あくまでその時の肯定的な場面を中心に展示しています。作品を見た人が、つらかった出来事をできるだけ思い出さずにすむよう配慮するためです。見ていてつらくなったときは、無理をせずに閉じてください。</p>
+    <p class="creation-note">作品はすべて研究知見に基づく創作（フィクション）です。実在する看護師や患者さんの体験をもとにしたものではありません。公開日時点では、3つの部屋の構成は、精神科看護師のワーク・エンゲイジメントに関する研究（Mukaihata et al., 2024, BMJ Open <a class="paper-link" href="https://researchmap.jp/hata-bou/published_papers/46344674" target="_blank" rel="noopener" aria-label="2024年の論文（BMJ Open）を別タブで開く">［2024］↗</a>; Mukaihata et al., 2026, Japan Journal of Nursing Science <a class="paper-link" href="https://researchmap.jp/hata-bou/published_papers/52119172" target="_blank" rel="noopener" aria-label="2026年の論文（Japan Journal of Nursing Science）を別タブで開く">［2026］↗</a>）を参考にしています。</p>
+  </section>
+  <div class="credit">
+    制作：向畑 毅（兵庫医科大学 看護学部 精神看護学領域）<br>
+    公開日：2026年10月18日　版：公開版 v1.0<br>
+    更新日：2026年11月5日　版：公開版 v2.0<br>
+    更新日：2026年11月6日　版：公開版 v3.0
+  </div>
+  <p class="to2d"><a href="hatarakigai-gallery.html">通常版（2D）のやりがいギャラリーで見る</a></p>
+</div></div>
+<div id="nogl"><div>この端末・ブラウザでは3D表示ができませんでした。<br><a href="hatarakigai-gallery.html">通常版のやりがいギャラリー</a>でご覧ください。</div></div>
+<div id="hint"></div>
+<div id="howto" role="dialog" aria-modal="true" aria-labelledby="howtoTitle"><div class="card">
+  <h2 id="howtoTitle">あそびかた</h2>
+  <div id="howtoList"></div>
+  <p class="note">あとで見たいときは、右上の「このギャラリーについて」にあります。</p>
+  <button id="howtoStart" type="button">はじめる</button>
+</div></div>
+<div id="swipe" aria-hidden="true"><div class="hand">👆</div><div class="txt"></div></div>
+<button id="back" type="button">← もどる</button>
+<button id="detail" type="button">詳細はタップ</button>
+<div id="pad"><button data-r="1" class="rot" aria-label="左に45度まわる">↺</button><button data-k="w" aria-label="前へ進む">▲</button><button data-r="-1" class="rot" aria-label="右に45度まわる">↻</button><button data-k="a" aria-label="左へ進む">◀</button><button data-k="s" aria-label="後ろへ進む">▼</button><button data-k="d" aria-label="右へ進む">▶</button></div>
+
+<div id="modal"><div class="card"><button id="mclose">✕ とじる</button><img id="mimg" alt=""><button id="mtoggle" type="button" aria-expanded="false" aria-controls="mcomment">アンカーストーリー <span>▼</span></button><p id="mcomment" hidden></p><small id="mdate"></small></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="gallery/works.js"></script>
+<script>
+// このギャラリーについて
+document.getElementById('aboutBtn').onclick = ()=> document.getElementById('about').classList.add('on');
+document.getElementById('aclose').onclick = ()=> document.getElementById('about').classList.remove('on');
+document.getElementById('about').addEventListener('click', e=>{ if(e.target.id==='about') e.currentTarget.classList.remove('on'); });
+// 3Dが使えない端末では、通常版への案内を出す
+window.NO_3D = !window.THREE || !(()=>{ try{ const c = document.createElement('canvas'); return c.getContext('webgl') || c.getContext('experimental-webgl'); }catch(e){ return null; } })();
+if(window.NO_3D){ document.getElementById('nogl').style.display = 'flex'; document.getElementById('aboutBtn').style.display = 'none'; }
+</script>
+<script>
+if(window.NO_3D) throw new Error('WebGL unavailable');
+const SERIF = '"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif';
+
+/* ---------- renderer / scene ---------- */
+const renderer = new THREE.WebGLRenderer({antialias:true});
+const LOW = matchMedia('(pointer:coarse)').matches || innerWidth < 700;   // スマホ・小さい画面は軽く描く
+renderer.setPixelRatio(Math.min(devicePixelRatio, LOW ? 1.5 : 2));
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 300);
+camera.rotation.order = 'YXZ';
+
+(function sky(){
+  const cv = document.createElement('canvas'); cv.width = 2; cv.height = 256;
+  const g = cv.getContext('2d'), gr = g.createLinearGradient(0,0,0,256);
+  gr.addColorStop(0,'#a9d2ee'); gr.addColorStop(.6,'#d9eef5'); gr.addColorStop(1,'#fbf1de');
+  g.fillStyle = gr; g.fillRect(0,0,2,256);
+  scene.background = new THREE.CanvasTexture(cv);
+})();
+scene.fog = new THREE.Fog(0xeaf2ea, 40, 120);
+
+scene.add(new THREE.HemisphereLight(0xfffaf0, 0xc6d6b8, 0.75));
+const sun = new THREE.DirectionalLight(0xfff0d0, 0.55);
+sun.position.set(-10, 18, 14);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+sun.castShadow = true; sun.shadow.mapSize.set(LOW ? 1024 : 2048, LOW ? 1024 : 2048); sun.shadow.bias = -.0004; sun.shadow.radius = 4;
+Object.assign(sun.shadow.camera, {left:-24, right:24, top:24, bottom:-24, near:1, far:70});
+scene.add(sun);
+
+/* ---------- helpers ---------- */
+const mat = (c, o={}) => new THREE.MeshStandardMaterial({color:c, roughness:.85, metalness:0, ...o});
+function box(w,h,d,m,x,y,z,parent=scene){
+  const o = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), m);
+  o.position.set(x,y,z); parent.add(o); return o;
+}
+// ppu: 1単位あたりの画素数(大きいほど文字がくっきり)
+function canvasPlane(w, h, draw, ppu=220){
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(w*ppu); cv.height = Math.round(h*ppu);
+  draw(cv.getContext('2d'), cv.width, cv.height);
+  const t = new THREE.CanvasTexture(cv); t.anisotropy = 4;
+  return new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({map:t, transparent:true}));
+}
+// やわらかい光のにじみ(加算合成)
+function glowTex(r,g,b){
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+  const c = cv.getContext('2d'), gr = c.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,`rgba(${r},${g},${b},1)`); gr.addColorStop(.45,`rgba(${r},${g},${b},.35)`); gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+  c.fillStyle = gr; c.fillRect(0,0,128,128);
+  return new THREE.CanvasTexture(cv);
+}
+const glowMat = (tex, opacity=1, color=0xffffff) => new THREE.MeshBasicMaterial({map:tex, color, opacity, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
+let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+function roundRect(g,x,y,w,h,r){
+  g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
+}
+
+const CREAM = mat(0xf3ecd9), CREAM2 = mat(0xe9dfc6), GOLD = mat(0xb8964f, {roughness:.4, metalness:.3});
+const GLASS = mat(0x9dbfcf, {roughness:.2, emissive:0x35525f, emissiveIntensity:.25});
+
+/* ---------- 外観 ---------- */
+// 地面と丘
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(300,300), mat(0xc4e0ac));
+ground.rotation.x = -Math.PI/2; scene.add(ground);
+[[-30,-5,-6,0xb7d9a4,18],[32,-6,-10,0xa9d0a0,20],[-12,-8,-60,0xc2dfae,30],[26,-8,-70,0xb0d3a3,34]].forEach(([x,y,z,c,r])=>{
+  const h = new THREE.Mesh(new THREE.SphereGeometry(r,32,16), mat(c));
+  h.scale.set(1,.45,1); h.position.set(x,y,z); scene.add(h);
+});
+// 太陽と雲
+const sunBall = new THREE.Mesh(new THREE.SphereGeometry(3,24,16), new THREE.MeshBasicMaterial({color:0xffe9a0, fog:false}));
+sunBall.position.set(16,26,-70); scene.add(sunBall);
+const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(255,238,180), blending:THREE.AdditiveBlending, depthWrite:false, fog:false, opacity:.8}));
+sunGlow.scale.set(40,40,1); sunGlow.position.copy(sunBall.position); scene.add(sunGlow);
+const clouds = [];
+[[-20,22,-60],[8,30,-80],[-45,18,-40],[40,24,-50]].forEach(([x,y,z])=>{
+  const c = new THREE.Group();
+  [[0,0,5],[4,-.4,4],[-4,-.5,3.6],[8,-.8,3]].forEach(([dx,dy,r])=>{
+    const s = new THREE.Mesh(new THREE.SphereGeometry(r,16,12), new THREE.MeshBasicMaterial({color:0xffffff, fog:false}));
+    s.scale.set(1,.5,.6); s.position.set(dx,dy,0); c.add(s);
+  });
+  c.position.set(x,y,z); scene.add(c); clouds.push(c);
+});
+
+// ファサード(壁は開口の周りを組む)
+const FW = 14, FH = 5.5, OPEN_W = 2.6, OPEN_H = 3.6;
+box((FW-OPEN_W)/2, FH, .6, CREAM, -(FW+OPEN_W)/4, FH/2, 0);
+box((FW-OPEN_W)/2, FH, .6, CREAM, (FW+OPEN_W)/4, FH/2, 0);
+box(OPEN_W, FH-OPEN_H, .6, CREAM, 0, OPEN_H+(FH-OPEN_H)/2, 0);
+// 軒とペディメント
+box(FW+.8, .35, 1.4, CREAM2, 0, FH+.17, .2);
+(function(){
+  const s = new THREE.Shape(); s.moveTo(-FW/2-.4,0); s.lineTo(FW/2+.4,0); s.lineTo(0,2.2); s.closePath();
+  const m = new THREE.Mesh(new THREE.ExtrudeGeometry(s,{depth:1.1,bevelEnabled:false}), CREAM);
+  m.position.set(0, FH+.35, -.35); scene.add(m);
+  const star = canvasPlane(.8,.8,(g,w,h)=>{g.fillStyle='#b8964f';g.font=`${h*.8}px ${SERIF}`;g.textAlign='center';g.textBaseline='middle';g.fillText('✦',w/2,h/2)});
+  star.position.set(0, FH+1.3, .76); scene.add(star);
+})();
+// 柱
+[-6.4,-2.2,2.2,6.4].forEach(x=>{
+  const c = new THREE.Mesh(new THREE.CylinderGeometry(.26,.3,FH,20), CREAM2);
+  c.position.set(x, FH/2, .5); scene.add(c);
+  box(.8,.2,.8,CREAM,x,.1,.5); box(.8,.2,.8,CREAM,x,FH-.1,.5);
+});
+// 窓
+[-4.3,4.3].forEach(x=>{
+  box(1.9,3,.12,GOLD,x,2.3,.4);
+  box(1.65,2.75,.14,GLASS,x,2.3,.42);
+  box(.06,2.75,.16,GOLD,x,2.3,.43);
+});
+// 看板
+(function(){
+  const t = canvasPlane(8,1.2,(g,w,h)=>{
+    g.textAlign='center'; g.textBaseline='middle';
+    g.fillStyle='#8f7230'; g.font=`italic ${h*.17}px ${SERIF}`; g.fillText('The Yarigai Gallery', w/2, h*.17);
+    // タイトルと版(通常版の看板と同じく、タイトルの右に小さく)を、まとめて中央にそろえる
+    const TITLE = 'や り が い ギ ャ ラ リ ー', VER = 'v3.0', GAP = h*.1;
+    const TF = `bold ${h*.5}px ${SERIF}`, VF = `500 ${h*.2}px Georgia,serif`;
+    g.font = TF; const tw = g.measureText(TITLE).width;
+    g.font = VF; const vw = g.measureText(VER).width;
+    const x0 = (w - (tw + GAP + vw)) / 2;
+    g.textAlign='left';
+    g.font = TF; g.fillText(TITLE, x0, h*.62);
+    g.fillStyle='#8f6a2a'; g.font = VF; g.fillText(VER, x0 + tw + GAP, h*.7);
+  });
+  t.position.set(0, 4.55, .9); scene.add(t);
+})();
+// 階段
+for(let i=0;i<3;i++) box(6+i*1.4, .16*(3-i), 1.1, mat(0xe2dcc8), 0, .08*(3-i), 1.2+i*.9);
+
+// 入口の扉(外観)
+function makeLeaf(w,h,color){
+  const g = new THREE.Group();
+  box(w,h,.1,mat(color,{roughness:.4}),w/2,h/2,0,g);
+  box(w*.8,h*.84,.12,GLASS,w/2,h/2,0,g);
+  box(.05,h*.84,.14,GOLD,w/2,h/2,0,g);
+  return g;
+}
+const frontL = new THREE.Group(), frontR = new THREE.Group();
+frontL.position.set(-OPEN_W/2, 0, 0); frontR.position.set(OPEN_W/2, 0, 0);
+const fl = makeLeaf(OPEN_W/2, OPEN_H, 0xb8964f), fr = makeLeaf(OPEN_W/2, OPEN_H, 0xb8964f);
+fr.scale.x = -1;
+frontL.add(fl); frontR.add(fr); scene.add(frontL, frontR);
+box(OPEN_W+.3,.2,.7,GOLD,0,OPEN_H+.1,0); box(.15,OPEN_H,.7,GOLD,-OPEN_W/2-.07,OPEN_H/2,0); box(.15,OPEN_H,.7,GOLD,OPEN_W/2+.07,OPEN_H/2,0);
+
+// 小道・花壇・木
+const path = new THREE.Mesh(new THREE.PlaneGeometry(4.6,40), mat(0xeee6d0)); path.rotation.x = -Math.PI/2; path.position.set(0,.01,24); scene.add(path);
+const PASTELS = [0xffc4d0,0xffe6a0,0xd6c8f5,0xffd3b0,0xffffff,0xbfe3f0];
+[-5.9,5.9].forEach(x=>{
+  box(2.6,.25,1.3,mat(0xcdb99a),x,.12,2.4);
+  for(let i=0;i<30;i++){
+    const fl = new THREE.Mesh(new THREE.SphereGeometry(.1+rnd()*.05,8,6), mat(PASTELS[(rnd()*PASTELS.length)|0]));
+    fl.position.set(x+(rnd()-.5)*2.4, .34+rnd()*.12, 2.4+(rnd()-.5)*1.1); scene.add(fl);
+  }
+});
+[[-10,5],[11,3],[-15,-3],[16,-5],[-8,13],[9,15]].forEach(([x,z])=>{
+  const tr = new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,2,10), mat(0xc9ab8c)); tr.position.set(x,1,z); scene.add(tr);
+  [[0,2.6,1.5,0xa9d8a0],[.7,2.2,1.1,0xbfe3b0],[-.6,2.3,1.0,0xb3dca6]].forEach(([dx,y,r,c])=>{
+    const cr = new THREE.Mesh(new THREE.SphereGeometry(r,16,12), mat(c)); cr.position.set(x+dx,y,z); scene.add(cr);
+  });
+});
+// 屋外の影(太陽だけが落とす)
+scene.children.forEach(o=>{ if(o.isMesh){ o.castShadow = true; o.receiveShadow = true; } });
+sunBall.castShadow = false;
+
+/* ---------- ホール ---------- */
+const HL = 16;
+const floorTex = (()=>{
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+  const g = cv.getContext('2d');
+  g.fillStyle='#e8dfc9'; g.fillRect(0,0,128,128);
+  g.fillStyle='#d9ceb3'; g.fillRect(0,0,64,64); g.fillRect(64,64,64,64);
+  const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(FW/2, HL/2); return t;
+})();
+const hallFloor = new THREE.Mesh(new THREE.PlaneGeometry(FW,HL), new THREE.MeshStandardMaterial({map:floorTex, roughness:.5}));
+hallFloor.rotation.x = -Math.PI/2; hallFloor.position.set(0,.01,-HL/2); scene.add(hallFloor);
+const hallCeil = new THREE.Mesh(new THREE.PlaneGeometry(FW,HL), mat(0xf7f3e8));
+hallCeil.rotation.x = Math.PI/2; hallCeil.position.set(0,FH,-HL/2); scene.add(hallCeil);
+const WALL = mat(0xc3d6c6);
+box(.3,FH,HL,WALL,-FW/2+.15,FH/2,-HL/2); box(.3,FH,HL,WALL,FW/2-.15,FH/2,-HL/2);
+// 腰壁・レール・天井のコーブ
+[-1,1].forEach(s=>{
+  const x = s*(FW/2-.32);
+  box(.06,.95,HL,mat(0xdfe9d9),x,.48,-HL/2); box(.12,.07,HL,mat(0xf4ecd6),x,.98,-HL/2);
+  box(.1,.06,HL,mat(0xf4ecd6),x,.06,-HL/2); box(.3,.22,HL,mat(0xf7f1e0),s*(FW/2-.3),FH-.11,-HL/2);
+});
+// 天井照明と、床に落ちるやわらかい光だまり
+const POOL = glowTex(255,240,205);
+[-3,3,0].forEach(x=>[-3,-8,-13].forEach(z=>{
+  const l = new THREE.Mesh(new THREE.BoxGeometry(1.4,.05,1.4), new THREE.MeshBasicMaterial({color:0xfffbe8}));
+  l.position.set(x,FH-.03,z); scene.add(l);
+  const pool = new THREE.Mesh(new THREE.PlaneGeometry(4,4), glowMat(POOL,.09)); pool.rotation.x = -Math.PI/2; pool.position.set(x,.04,z); scene.add(pool);
+}));
+[-4,-10].forEach(z=>{ const pl = new THREE.PointLight(0xfff0d8, .08, 14); pl.position.set(0,4.6,z); scene.add(pl); });
+// ふわふわ舞う光の粒
+const MOTE_N = LOW ? 60 : 140, motePos = new Float32Array(MOTE_N*3);
+for(let i=0;i<MOTE_N;i++){ motePos[i*3]=(rnd()-.5)*12; motePos[i*3+1]=.3+rnd()*4.6; motePos[i*3+2]=-.5-rnd()*15; }
+const motes = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(motePos,3)),
+  new THREE.PointsMaterial({map:glowTex(255,246,215), size:.14, transparent:true, opacity:.6, blending:THREE.AdditiveBlending, depthWrite:false}));
+scene.add(motes);
+// 観葉植物とベンチ
+[[-6.2,-2],[6.2,-2],[-6.2,-14.6],[6.2,-14.6]].forEach(([x,z])=>{
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(.28,.22,.55,16), mat(0xc58f6a)); pot.position.set(x,.28,z); scene.add(pot);
+  const leaf = new THREE.Mesh(new THREE.SphereGeometry(.6,16,12), mat(0x6f9a63)); leaf.scale.y=1.2; leaf.position.set(x,1.1,z); scene.add(leaf);
+});
+[[-6.3,-8],[6.3,-8]].forEach(([x,z])=>{ box(.6,.45,2.6,mat(0xc8a67a),x,.23,z); box(.12,.5,2.6,mat(0xc8a67a),x+(x<0?-.25:.25),.7,z); });
+// ラグ
+box(4,.02,HL-2,mat(0xdccfae),0,.025,-HL/2);
+box(3.6,.03,HL-2.4,mat(0xe9dec0),0,.03,-HL/2);
+
+/* ---------- 3つの扉と展示室 ---------- */
+const NARROW = innerWidth < innerHeight;   // 縦長の画面(スマホ)。扉の看板・札を大きくする
+const THEMES = [
+  {code:'wp', title:'職場の要因',   en:'Workplace Factors',  sub:'支え合いのなかで', n:2, door:0xe7c79c, wall:0xf5e6cf, light:0xffe2b8, cx:-4.5, c1:'#f0cfa0', c2:'#e59f6a'},
+  {code:'pt', title:'患者の要因',   en:'Patient Factors',    sub:'患者さんとの関わりから', n:5, door:0x9fc7ae, wall:0xe0efe4, light:0xd8f2e0, cx:0,    c1:'#bfe0c8', c2:'#5f9c7c'},
+  {code:'in', title:'看護師自身の要因', en:'Individual / Nurse Factors', sub:'自分の内側に気づく', n:3, door:0xb9b4e0, wall:0xe9e7f6, light:0xe4def9, cx:4.5, c1:'#d3cff0', c2:'#8179c4'},
+];
+const imgUrl = w => w.image;   // 同じサイトの gallery/works/ を相対パスで読む(埋め込み版では data: のまま)
+const WORKS = window.GALLERY_WORKS || [];
+THEMES.forEach(t=>{
+  t.works = WORKS.filter(w=>w.room===t.code);
+  t.n = t.works.length;
+  t.depth = Math.max(8, 3.5 + Math.ceil(t.n/2)*3.2);
+});
+const texLoader = new THREE.TextureLoader(); texLoader.setCrossOrigin('anonymous');
+const workTitle = w => (w.alt.match(/「(.+?)」/)||[])[1] || w.id;
+const HALL_BACK = -HL, DOOR_W = 2.2, DOOR_H = 3.2, ROOM_W = 4.2;
+// 奥壁(扉のすき間を空けて組む)
+(function(){
+  const xs = [-FW/2]; THEMES.forEach(t=>{ xs.push(t.cx-DOOR_W/2, t.cx+DOOR_W/2); }); xs.push(FW/2);
+  for(let i=0;i<xs.length;i+=2) box(xs[i+1]-xs[i], FH, .3, WALL, (xs[i]+xs[i+1])/2, FH/2, HALL_BACK-.1);
+  box(FW, FH-DOOR_H, .3, WALL, 0, DOOR_H+(FH-DOOR_H)/2, HALL_BACK-.1);
+  const head = canvasPlane(9,1.1,(g,w,h)=>{
+    g.textAlign='center'; g.textBaseline='middle';
+    g.fillStyle='#7d8f82'; g.font=`${h*.2}px ${SERIF}`; g.fillText('T H R E E   D O O R S ,   M A N Y   S T O R I E S', w/2, h*.18);
+    g.fillStyle='#3b4a42'; g.font=`bold ${h*.5}px ${SERIF}`; g.fillText('やりがいへの、3つの入口。', w/2, h*.62);
+  });
+  head.position.set(0, 4.85, HALL_BACK+.07); scene.add(head);
+})();
+
+const WASH = glowTex(255,255,255);
+const doors = [], rooms = [], washes = [];   // washes: 額の後ろの光(「触れる物」の合図として明滅させる)
+THEMES.forEach((t,i)=>{
+  const frameZ = HALL_BACK+.05;
+  box(DOOR_W+.5,.25,.5,GOLD,t.cx,DOOR_H+.12,frameZ);
+  box(.2,DOOR_H,.5,GOLD,t.cx-DOOR_W/2-.1,DOOR_H/2,frameZ); box(.2,DOOR_H,.5,GOLD,t.cx+DOOR_W/2+.1,DOOR_H/2,frameZ);
+  // 扉板
+  const pivot = new THREE.Group(); pivot.position.set(t.cx-DOOR_W/2, 0, HALL_BACK);
+  const leaf = box(DOOR_W-.04, DOOR_H-.04, .1, mat(t.door,{roughness:.5, emissive:t.door, emissiveIntensity:0}), DOOR_W/2, DOOR_H/2, 0, pivot);
+  leaf.userData.door = i;
+  const inset = box(DOOR_W*.72, DOOR_H*.78, .04, mat(t.door,{roughness:.5, emissive:t.door, emissiveIntensity:.15}), DOOR_W/2, DOOR_H/2, .06, pivot);
+  inset.userData.door = i;
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(.07,12,10), GOLD); knob.position.set(DOOR_W-.2,1.5,.12); pivot.add(knob);
+  // 札：展示数と「タップで入室」の2行(押せる扉だと分かるように)
+  // スマホ(縦長)では扉が小さく映るので、札を扉の幅近くまで大きく・くっきりさせる
+  const tapWord = matchMedia('(pointer:coarse)').matches ? 'タップで入室' : 'クリックで入室';
+  const [PW, PH, PPU] = NARROW ? [1.9, .84, 380] : [1.5, .66, 220];
+  const plaque = canvasPlane(PW, PH, (g,w,h)=>{
+    const u = h/145;   // 線の太さ・角の丸みを大きさに合わせる
+    g.fillStyle='#31453b'; roundRect(g,4*u,4*u,w-8*u,h-8*u,16*u); g.fill();
+    g.strokeStyle='#b8964f'; g.lineWidth=3*u; roundRect(g,10*u,10*u,w-20*u,h-20*u,12*u); g.stroke();
+    g.textAlign='center'; g.textBaseline='middle';
+    g.fillStyle='#fff'; g.font=`bold ${h*.32}px ${SERIF}`; g.fillText(t.n ? `${t.n}点展示中` : '準備中', w/2, h*.36);
+    g.fillStyle='#f3dfae'; g.font=`bold ${h*.22}px ${SERIF}`; g.fillText(`▶ ${tapWord}`, w/2, h*.7);
+  }, PPU);
+  plaque.position.set(DOOR_W/2, 1.9, .1); plaque.userData.door = i; pivot.add(plaque);
+  scene.add(pivot);
+  // 扉の前でゆれる矢印(扉に目が向くように。押しても入室できる)
+  const arrow = canvasPlane(.7,.7,(g,w,h)=>{
+    g.fillStyle='#b8964f'; g.font=`${h*.9}px ${SERIF}`; g.textAlign='center'; g.textBaseline='middle'; g.fillText('▼', w/2, h/2);
+  });
+  arrow.position.set(t.cx, 2.75, HALL_BACK+.35); arrow.userData.door = i; scene.add(arrow);
+  // 扉の上のサイン
+  // スマホ(縦長)：英語名と番号を外して2行(部屋名を大きく＋ひとこと)。扉の間の空きまで広げ、高解像度で描く
+  const sign = NARROW
+    ? canvasPlane(4.3,1.0,(g,w,h)=>{
+        g.textAlign='center'; g.textBaseline='middle';
+        g.fillStyle='#3b4a42'; g.font=`bold ${h*.46}px ${SERIF}`; g.fillText(t.title, w/2, h*.36, w*.9);
+        g.fillStyle='#4f5f55'; g.font=`bold ${h*.25}px ${SERIF}`; g.fillText(t.sub, w/2, h*.8, w*.9);
+      }, 420)
+    : canvasPlane(3.3,1.0,(g,w,h)=>{
+        g.textAlign='center'; g.textBaseline='middle';
+        g.fillStyle='#8a9a8f'; g.font=`${h*.13}px ${SERIF}`; g.fillText(`0${i+1}`, w/2, h*.1);
+        g.fillStyle='#3b4a42'; g.font=`bold ${h*.3}px ${SERIF}`; g.fillText(t.title, w/2, h*.38);
+        g.fillStyle='#8a9a8f'; g.font=`${h*.12}px ${SERIF}`; g.fillText(t.en, w/2, h*.62);
+        g.fillStyle='#5a6a60'; g.font=`${h*.14}px ${SERIF}`; g.fillText(t.sub, w/2, h*.84);
+      });
+  // スマホでは左右の看板を少し内側へ寄せて、画面の端で切れないようにする
+  sign.position.set(NARROW ? t.cx*.88 : t.cx, NARROW ? DOOR_H+.72 : DOOR_H+.85, HALL_BACK+.08); scene.add(sign);
+  doors.push({pivot, leaf, inset, plaque, arrow, t});
+
+  // 展示室
+  const ROOM_D = t.depth;
+  const R =new THREE.Group(); R.position.set(t.cx, 0, HALL_BACK-.25); scene.add(R);
+  const wallM = mat(t.wall);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), mat(0xece4d0)); fl.rotation.x=-Math.PI/2; fl.position.set(0,.01,-ROOM_D/2); R.add(fl);
+  const ce = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), mat(0xfbf8f0)); ce.rotation.x=Math.PI/2; ce.position.set(0,4.2,-ROOM_D/2); R.add(ce);
+  box(.1,4.2,ROOM_D,wallM,-ROOM_W/2,2.1,-ROOM_D/2,R); box(.1,4.2,ROOM_D,wallM,ROOM_W/2,2.1,-ROOM_D/2,R);
+  box(ROOM_W,4.2,.1,wallM,0,2.1,-ROOM_D,R);
+  // 腰壁とレール(扉と同じ色をうすく)
+  const wains = mat(new THREE.Color(t.door).lerp(new THREE.Color(0xffffff), .45)), rail = mat(0xf7f1e0);
+  [-1,1].forEach(s=>{ box(.04,.95,ROOM_D,wains,s*(ROOM_W/2-.07),.48,-ROOM_D/2,R); box(.1,.07,ROOM_D,rail,s*(ROOM_W/2-.08),.98,-ROOM_D/2,R); });
+  box(ROOM_W,.95,.04,wains,0,.48,-ROOM_D+.07,R); box(ROOM_W,.07,.1,rail,0,.98,-ROOM_D+.08,R);
+  box(ROOM_W-.4,.03,1.4,mat(t.door),0,.03,-4.5,R);
+  const lamp = new THREE.PointLight(t.light, 0.25, 12); lamp.position.set(0,3.6,-5); R.add(lamp);
+  // 額
+  t.works.forEach((work,k)=>{
+    const left = k%2===0, z = -3.2 - Math.floor(k/2)*3.2;
+    const f = new THREE.Group(); f.position.set(left?-ROOM_W/2+.08:ROOM_W/2-.08, 1.95, z); f.rotation.y = left?Math.PI/2:-Math.PI/2; R.add(f);
+    const border = box(1,1,.07,GOLD,0,0,0,f);
+    const wash = new THREE.Mesh(new THREE.PlaneGeometry(1,1), glowMat(WASH,.6,t.light)); wash.position.z = -.025; f.add(wash); washes.push(wash);
+    const plight = box(.7,.05,.12,GOLD,0,0,.09,f);
+    const art = canvasPlane(1.4,1,(g,w,h)=>{
+      const gr = g.createLinearGradient(0,0,w,h); gr.addColorStop(0,t.c1); gr.addColorStop(1,t.c2);
+      g.fillStyle=gr; g.fillRect(0,0,w,h);
+      g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.font=`bold ${h*.12}px ${SERIF}`; g.fillText('読みこみ中…', w/2, h/2);
+    });
+    art.position.z = .045; art.userData.work = work; f.add(art);
+    const fit = (W,H)=>{
+      art.scale.set(W/1.4, H, 1); border.scale.set(W+.14, H+.14, 1);
+      wash.scale.set(W+1.8, H+1.5, 1); plight.position.y = H/2+.22;
+    };
+    fit(1.4,1);
+    texLoader.load(imgUrl(work), tex=>{
+      const a = tex.image.width/tex.image.height; let H = 1.3, W = H*a;
+      if(W>1.7){ W = 1.7; H = W/a; }
+      art.material.map = tex; art.material.needsUpdate = true; fit(W,H);
+    });
+  });
+  rooms.push({cx:t.cx});
+});
+
+/* ---------- カメラ / 操作 ---------- */
+let mode = 'outside', roomIdx = -1, yaw = 0, pitch = .06, outsideT0 = 0;
+const portrait = () => innerWidth/innerHeight < 1;
+// 縦長の画面では視野を広げて、横が切れないようにする
+function fitCam(){
+  const a = innerWidth/innerHeight;
+  camera.fov = a >= 1 ? 60 : Math.min(98, 2*Math.atan(Math.tan(35*Math.PI/180)/a)*180/Math.PI);
+  camera.aspect = a; camera.updateProjectionMatrix();
+}
+fitCam();
+// 最初の位置。空にタイトルが入るよう、建物から少し離れて立つ
+const pos = new THREE.Vector3(0, 1.7, portrait() ? 19 : 21);
+function applyCam(){ camera.position.copy(pos); camera.rotation.set(pitch, yaw, 0); }
+applyCam();
+
+function tween(ms, fn){
+  return new Promise(res=>{
+    const t0 = performance.now();
+    (function step(t){
+      const k = Math.min(1,(t-t0)/ms); fn(k*k*(3-2*k));
+      k<1 ? requestAnimationFrame(step) : res();
+    })(t0);
+  });
+}
+const angDiff = (a,b)=>{ let d=(b-a)%(Math.PI*2); if(d>Math.PI) d-=Math.PI*2; if(d<-Math.PI) d+=Math.PI*2; return d; };
+function moveCam(to, toYaw, toPitch, ms){
+  const p0 = pos.clone(), y0 = yaw, pi0 = pitch, dy = angDiff(y0,toYaw);
+  return tween(ms, k=>{ pos.lerpVectors(p0,to,k); yaw=y0+dy*k; pitch=pi0+(toPitch-pi0)*k; });
+}
+
+const $ = id => document.getElementById(id);
+const hint = $('hint'), pad = $('pad');
+/* ---------- 操作の案内 ----------
+   ・その場に合った短い一言(ホール:扉、展示室:額)。一度その操作をしたら消える
+   ・はじめの1回だけ、見回し(スワイプ/ドラッグ)の手本を出す。一度でも見回したら消える
+   ・覚えたことはこの端末に記録し、次に来たときは出さない(記録できない環境では毎回出る) */
+const TOUCH = matchMedia('(pointer:coarse)').matches;
+const LEARN_KEY = 'yarigai3d-learned';
+const learned = {swipe:false, door:false, frame:false, howto:false};
+try{ Object.assign(learned, JSON.parse(localStorage.getItem(LEARN_KEY) || '{}')); }catch(e){}
+function learn(k){
+  if(learned[k]) return;
+  learned[k] = true;
+  try{ localStorage.setItem(LEARN_KEY, JSON.stringify(learned)); }catch(e){}
+  updateGuides();
+}
+// あそびかた(操作のまとめ)。はじめてホールに着いたときに1回だけカードで出す。「このギャラリーについて」にも同じ内容
+const HOWTO = TOUCH ? [
+  ['👆','画面をなぞる','まわりを見回す'],
+  ['🚪','扉をタップ','部屋に入る'],
+  ['🖼️','額をタップ','遠くからでも目の前へ'],
+  ['↺▲↻','右下のボタン','歩く・45度まわる'],
+  ['←','もどる','ひとつ前の場所へ'],
+] : [
+  ['🖱️','ドラッグ','まわりを見回す'],
+  ['🚪','扉をクリック','部屋に入る'],
+  ['🖼️','額をクリック','遠くからでも目の前へ'],
+  ['⌨️','WASD／矢印キー','歩く（Q／Eで45度まわる）'],
+  ['←','もどる','ひとつ前の場所へ'],
+];
+const howtoHTML = '<ul class="howto">' + HOWTO.map(([ic,a,b])=>`<li><span class="ic" aria-hidden="true">${ic}</span><b>${a}</b><span class="what">${b}</span></li>`).join('') + '</ul>';
+$('howtoList').innerHTML = howtoHTML;
+$('aboutHowto').innerHTML = howtoHTML;
+let howtoOpen = false, skipSwipe = false;
+function showHowto(){ howtoOpen = true; skipSwipe = true; $('howto').classList.add('on'); updateGuides(); $('howtoStart').focus(); }
+$('howtoStart').onclick = ()=>{ howtoOpen = false; $('howto').classList.remove('on'); learn('howto'); updateGuides(); };
+
+if(!TOUCH) $('detail').textContent = '詳細はクリック';   // 額の前に出るボタン(パソコンでは「クリック」)
+const swipe = $('swipe');
+swipe.querySelector('.txt').textContent = TOUCH
+  ? '画面をなぞると、まわりを見回せます'
+  : 'ドラッグで見回し ・ WASD／矢印キーで歩く ・ Q／Eで45度まわる';
+let guidesOn = false;
+// 展示室で、額をタップせずに歩いて近づこうとしている人に、一言をもう一度目立たせて出す(部屋に入るたびに1回まで)
+let roomWalk = 0, roomTapped = false, nudged = false, nudgeUntil = 0;
+function resetRoomNudge(){ roomWalk = 0; roomTapped = false; nudged = false; nudgeUntil = 0; }
+function updateGuides(){
+  let text = '';
+  if(mode==='hall' && !learned.door)  text = TOUCH ? '扉をタップすると、部屋に入れます' : '扉をクリックすると、部屋に入れます';
+  // 展示室：額を覚えるまで、または「歩いて近づこうとしている人」へのお知らせ中(nudgeUntil)に出す
+  if(mode==='room' && (!learned.frame || performance.now() < nudgeUntil)) text = TOUCH ? '遠くの額も、タップすると目の前まで行けます' : '遠くの額も、クリックすると目の前まで行けます';
+  hint.classList.toggle('nudge', mode==='room' && performance.now() < nudgeUntil);
+  if(text) hint.textContent = text;
+  hint.style.opacity = guidesOn && text && !howtoOpen ? 1 : 0;
+  // 見回しの手本は、あそびかたのカードを見た回には出さない(内容が重なるため)
+  swipe.classList.toggle('on', guidesOn && !howtoOpen && !skipSwipe && !learned.swipe && (mode==='hall' || mode==='room'));
+}
+function setHint(on){ guidesOn = on; pad.classList.toggle('on', on); $('back').classList.toggle('on', on); updateGuides(); }
+
+$('enter').onclick = async ()=>{
+  if(mode!=='outside') return; mode='busy';
+  $('intro').style.opacity = 0; setTimeout(()=>$('intro').style.display='none', 600);
+  $('titleScreen').classList.add('hide');
+  await moveCam(new THREE.Vector3(0,1.7,6), 0, .08, 1800);
+  tween(1400, k=>{ frontL.rotation.y = 1.7*k; frontR.rotation.y = -1.7*k; });
+  await moveCam(hallPoint().p, 0, 0, 3200);
+  mode='hall'; setHint(true);
+  if(!learned.howto) showHowto();
+};
+
+async function enterDoor(i){
+  if(mode!=='hall') return; mode='busy'; setHint(false);
+  const d = doors[i], cx = d.t.cx;
+  await moveCam(new THREE.Vector3(cx,1.6,HALL_BACK+2.4), 0, 0, 1000);
+  await tween(900, k=>{ d.pivot.rotation.y = 1.65*k; });
+  await moveCam(new THREE.Vector3(cx,1.6,HALL_BACK-3), 0, 0, 1800);
+  mode='room'; roomIdx=i; resetRoomNudge();
+  $('roomtitle').textContent = d.t.title; $('roomtitle').style.display='block'; setHint(true);
+}
+
+/* ---------- 「もどる」ボタン ----------
+   戻るポイントは3つ： ①正面(最初の画面) ②建物に入ったところ ③部屋に入ったところ
+   押すたびに、ひとつ前のポイントへ戻る。
+   ・ポイントから動いている(歩いた・向きを変えた・額の前にいる)ときは、まず今いる場所のポイントへ
+   ・ポイントにいるときは、ひとつ外側のポイントへ(③→②→①) */
+const START_Z = portrait() ? 19 : 21;
+// 建物に入ったところ。縦長(スマホ)では扉が小さく見えるので、扉に近い位置にする
+const hallPoint = ()=>({p:new THREE.Vector3(0,1.6, portrait() ? -4.5 : -2), yaw:0, pitch:0});
+const roomPoint = i=>({p:new THREE.Vector3(doors[i].t.cx,1.6,HALL_BACK-3), yaw:0, pitch:0});
+const atPoint = c => pos.distanceTo(c.p) < .05 && Math.abs(angDiff(yaw,c.yaw)) < .02 && Math.abs(pitch-c.pitch) < .02;
+function backTarget(){   // ボタンに出す行き先
+  if(mode==='viewing') return '部屋の入口へ';
+  if(mode==='room') return atPoint(roomPoint(roomIdx)) ? 'ホールへ' : '部屋の入口へ';
+  if(mode==='hall') return atPoint(hallPoint()) ? '外へ（正面）' : '建物の入口へ';
+  return null;
+}
+// ポイントへ戻る：回りながら移動すると酔いやすいので、①その場で向きを直す → ②まっすぐ歩いて戻る、の2段階
+// 時間は回る角度・歩く距離に合わせる(大きく回る/遠いほどゆっくり)
+async function goPoint(c){
+  const m = mode; mode='busy';
+  const dYaw = Math.abs(angDiff(yaw, c.yaw)), dPitch = Math.abs(pitch - c.pitch);
+  if(dYaw > .01 || dPitch > .01) await moveCam(pos.clone(), c.yaw, c.pitch, Math.min(1400, 350 + dYaw*420 + dPitch*400));
+  const dist = pos.distanceTo(c.p);
+  if(dist > .01) await moveCam(c.p, c.yaw, c.pitch, Math.min(2200, 450 + dist*160));
+  mode = m;
+}
+async function goBack(){
+  if(turning || !(mode==='hall'||mode==='room'||mode==='viewing')) return;
+  if(mode==='viewing') exitViewing();
+  if(mode==='room'){
+    if(!atPoint(roomPoint(roomIdx))) return goPoint(roomPoint(roomIdx));
+    // ③部屋の入口 → ②建物の入口：後ろ向きに部屋を出て、扉を閉め、ホールの入口へ
+    mode='busy'; setHint(false); $('roomtitle').style.display='none';
+    const d = doors[roomIdx];
+    await moveCam(new THREE.Vector3(d.t.cx,1.6,HALL_BACK+2.4), 0, 0, 1600);
+    tween(800, k=>{ d.pivot.rotation.y = 1.65*(1-k); });
+    const c = hallPoint(); await moveCam(c.p, c.yaw, c.pitch, 1400);
+    mode='hall'; roomIdx=-1; setHint(true); return;
+  }
+  if(mode==='hall'){
+    if(!atPoint(hallPoint())) return goPoint(hallPoint());
+    // ②建物の入口 → ①正面：後ろ向きに建物を出て、玄関の扉を閉め、最初の位置へ
+    mode='busy'; setHint(false);
+    await moveCam(new THREE.Vector3(0,1.7,6), 0, .08, 2400);
+    tween(1200, k=>{ frontL.rotation.y = 1.7*(1-k); frontR.rotation.y = -1.7*(1-k); });
+    await moveCam(new THREE.Vector3(0,1.7,START_Z), 0, .06, 1600);
+    const intro = $('intro'); intro.style.display = ''; requestAnimationFrame(()=>{ intro.style.opacity = 1; });
+    $('titleScreen').classList.remove('hide');
+    outsideT0 = performance.now(); mode='outside';
+  }
+}
+$('back').onclick = goBack;
+
+// 見回し・クリック
+let drag = null;
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+function doorAt(e){
+  ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(doors.flatMap(d=>[d.leaf,d.inset,d.plaque,d.arrow]), false)[0];
+  return hit ? hit.object.userData.door : -1;
+}
+renderer.domElement.addEventListener('pointerdown', e=>{ drag = {x:e.clientX,y:e.clientY,moved:false}; renderer.domElement.setPointerCapture(e.pointerId); });
+renderer.domElement.addEventListener('pointermove', e=>{
+  if(drag && (mode==='hall'||mode==='room'||mode==='viewing')){
+    const dx = e.clientX-drag.x, dy = e.clientY-drag.y;
+    if(Math.abs(dx)+Math.abs(dy)>(e.pointerType==='touch'?10:4)){ drag.moved = true; learn('swipe'); }
+    yaw -= dx*.004; pitch = Math.max(-.9, Math.min(.9, pitch - dy*.004));
+    drag.x = e.clientX; drag.y = e.clientY;
+  } else if(mode==='hall'){
+    renderer.domElement.style.cursor = doorAt(e)>=0 ? 'pointer' : 'default';
+  }
+  if(!drag && (mode==='room'||mode==='viewing')) renderer.domElement.style.cursor = workAt(e) ? 'pointer' : 'default';
+});
+renderer.domElement.addEventListener('pointerup', e=>{
+  if(drag && !drag.moved && mode==='hall'){ const i = doorAt(e); if(i>=0){ learn('door'); enterDoor(i); } }
+  if(drag && !drag.moved && (mode==='room'||mode==='viewing')){ const m = workAt(e); if(m){ roomTapped = true; nudgeUntil = 0; learn('frame'); updateGuides(); selectWork(m); } }
+  drag = null;
+});
+let viewMesh = null;
+function exitViewing(){
+  mode = 'room'; viewMesh = null; $('detail').style.display = 'none'; updateGuides();
+}
+// 額の正面まで歩いて近づく。近づいた状態でもう一度押す(または「詳細を見る」)と詳細が開く
+async function selectWork(mesh){
+  if(mode==='viewing' && viewMesh===mesh){ openWork(mesh.userData.work); return; }
+  if(mode!=='room' && mode!=='viewing') return;
+  mode = 'busy'; $('detail').style.display = 'none';
+  const f = mesh.parent, p = new THREE.Vector3(); f.getWorldPosition(p);
+  const ry = f.rotation.y;
+  const dist = portrait() ? 1.7 : 2.6;   // 縦長の画面では額にもっと寄る
+  await moveCam(new THREE.Vector3(p.x+Math.sin(ry)*dist, 1.6, p.z+Math.cos(ry)*dist), ry, .12, 1100);
+  mode = 'viewing'; viewMesh = mesh; $('detail').style.display = 'block'; updateGuides();
+}
+$('detail').onclick = ()=>{ if(viewMesh) openWork(viewMesh.userData.work); };
+function workAt(e){
+  if(roomIdx<0) return null;
+  ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(scene.children.flatMap(o=>{ const a=[]; o.traverse(c=>{ if(c.userData.work) a.push(c); }); return a; }), false)[0];
+  return hit ? hit.object : null;
+}
+function openWork(w){
+  $('mimg').src = imgUrl(w); $('mimg').alt = w.alt;
+$('mcomment').textContent = w.comment || ''; $('mcomment').hidden = true;
+  $('mtoggle').setAttribute('aria-expanded','false'); $('mtoggle').style.display = w.comment ? 'block' : 'none'; $('mdate').textContent = w.date ? `公開日 ${w.date}` : '';
+  $('modal').classList.add('on');
+}
+$('mtoggle').onclick = ()=>{
+  const open = $('mcomment').hidden; $('mcomment').hidden = !open; $('mtoggle').setAttribute('aria-expanded', open?'true':'false');
+};
+$('mclose').onclick = ()=> $('modal').classList.remove('on');
+$('modal').addEventListener('click', e=>{ if(e.target.id==='modal') $('modal').classList.remove('on'); });
+
+const keys = {};
+addEventListener('keydown', e=>{ keys[e.key.toLowerCase()] = true; });
+addEventListener('keyup',   e=>{ keys[e.key.toLowerCase()] = false; });
+// 左右に45度まわる(ボタン ↺↻ ／ キーボード Q・E)
+let turning = false;
+async function turn(dir){
+  if(turning || !(mode==='hall'||mode==='room'||mode==='viewing')) return;
+  if(mode==='viewing') exitViewing();
+  turning = true;
+  const y0 = yaw;
+  await tween(350, k=>{ yaw = y0 + dir*Math.PI/4*k; });
+  turning = false;
+}
+pad.querySelectorAll('button[data-r]').forEach(b=> b.addEventListener('click', ()=>turn(+b.dataset.r)));
+addEventListener('keydown', e=>{ if(e.repeat) return; const k = e.key.toLowerCase(); if(k==='q') turn(1); if(k==='e') turn(-1); });
+pad.querySelectorAll('button[data-k]').forEach(b=>{
+  b.addEventListener('pointerdown', ()=>keys[b.dataset.k]=true);
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev, ()=>keys[b.dataset.k]=false));
+});
+
+addEventListener('resize', ()=>{
+  renderer.setSize(innerWidth, innerHeight); fitCam();
+});
+
+/* ---------- ループ ---------- */
+let last = performance.now();
+renderer.setAnimationLoop(t=>{
+  const dt = Math.min(.05,(t-last)/1000); last = t;
+  const mp = motes.geometry.attributes.position;
+  for(let i=0;i<MOTE_N;i++){
+    let y = mp.getY(i) + dt*(.05+.03*(i%4)); if(y>4.9) y = .3;
+    mp.setY(i, y); mp.setX(i, mp.getX(i) + Math.sin(t/1500+i)*dt*.04);
+  }
+  mp.needsUpdate = true;
+  clouds.forEach((c,i)=>{ c.position.x += dt*(.4+.1*i); if(c.position.x>70) c.position.x=-70; });
+  // 扉・額をふんわり明滅させる(一度タップ/クリックしたら止める)
+  const pulse = .5 + .5*Math.sin(t/450);
+  // 扉：覚えるまでは扉全体をはっきり明滅＋矢印がゆれる。覚えた後も少し明るくして見やすく
+  const insetGlow = learned.door ? .3 : .25 + .6*pulse;
+  const leafGlow  = learned.door ? .12 : .1 + .35*pulse;
+  doors.forEach((d,i)=>{
+    d.inset.material.emissiveIntensity = insetGlow;
+    d.leaf.material.emissiveIntensity = leafGlow;
+    d.arrow.visible = !learned.door && mode==='hall';
+    d.arrow.position.y = 2.75 + Math.sin(t/300 + i)*.08;
+  });
+  const washOp = learned.frame ? .6 : .45 + .6*pulse;
+  washes.forEach(w=>{ w.material.opacity = washOp; });
+  if(nudgeUntil && performance.now() >= nudgeUntil){ nudgeUntil = 0; updateGuides(); }   // お知らせの時間が終わったら戻す
+  if(mode==='outside'){
+    // 外観のゆっくりした揺れ。外に出た時刻から0で始め、3秒かけて強める(戻ったときに横へ跳ばないように)
+    const s = t - outsideT0, ramp = Math.min(1, s/3000);
+    yaw = Math.sin(s/4000)*.03*ramp; pos.x = Math.sin(s/5000)*.4*ramp;
+  } else if(mode==='hall' || mode==='room' || mode==='viewing'){
+    const f = (keys['w']||keys['arrowup']?1:0) - (keys['s']||keys['arrowdown']?1:0);
+    const s = (keys['d']||keys['arrowright']?1:0) - (keys['a']||keys['arrowleft']?1:0);
+    if(f||s){
+      if(mode==='viewing') exitViewing();
+      // 展示室で3秒ほど歩いても額をタップしていなければ、一言を6秒間目立たせて出す
+      if(mode==='room' && !roomTapped && !nudged){
+        roomWalk += dt;
+        if(roomWalk > 3){ nudged = true; nudgeUntil = performance.now() + 6000; updateGuides(); }
+      }
+      const sp = 3*dt;
+      pos.x += (-Math.sin(yaw)*f + Math.cos(yaw)*s)*sp;
+      pos.z += (-Math.cos(yaw)*f - Math.sin(yaw)*s)*sp;
+      if(mode==='hall'){ pos.x = Math.max(-FW/2+.8, Math.min(FW/2-.8, pos.x)); pos.z = Math.max(HALL_BACK+1.2, Math.min(-.8, pos.z)); }
+      else { const cx = doors[roomIdx].t.cx; pos.x = Math.max(cx-ROOM_W/2+.5, Math.min(cx+ROOM_W/2-.5, pos.x)); pos.z = Math.max(HALL_BACK-doors[roomIdx].t.depth+.5, Math.min(HALL_BACK-.6, pos.z)); }
+    }
+  }
+  // 「もどる」ボタンに行き先を出す(変わったときだけ書きかえる)
+  const bt = backTarget();
+  if(bt){ const label = '← ' + bt; if($('back').textContent !== label) $('back').textContent = label; }
+  applyCam();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
