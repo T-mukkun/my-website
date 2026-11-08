@@ -745,15 +745,19 @@ function backTarget(){   // ボタンに出す行き先
 // ポイントへ戻る：回りながら移動すると酔いやすいので、①その場で向きを直す → ②まっすぐ歩いて戻る、の2段階
 // 時間は回る角度・歩く距離に合わせる(大きく回る/遠いほどゆっくり)
 async function goPoint(c){
+  clearMovement();
   const m = mode; mode='busy';
   const dYaw = Math.abs(angDiff(yaw, c.yaw)), dPitch = Math.abs(pitch - c.pitch);
   if(dYaw > .01 || dPitch > .01) await moveCam(pos.clone(), c.yaw, c.pitch, Math.min(1400, 350 + dYaw*420 + dPitch*400));
   const dist = pos.distanceTo(c.p);
   if(dist > .01) await moveCam(c.p, c.yaw, c.pitch, Math.min(2200, 450 + dist*160));
-  mode = m;
+  pos.copy(c.p); yaw=c.yaw; pitch=c.pitch;
+  clearMovement(); mode = m;
 }
 async function goBack(){
-  if(turning || !(mode==='hall'||mode==='room'||mode==='viewing')) return;
+  if(!(mode==='hall'||mode==='room'||mode==='viewing')) return;
+  // 戻る操作を優先し、移動入力と実行中の回転を止める。
+  turnSerial++; turning=false; clearMovement(); hideRoomNudge();
   if(howtoOpen){
     howtoOpen = false; $('howto').classList.remove('on');
     clearMovement(); updateGuides();
@@ -867,20 +871,21 @@ function clearMovement(){
 addEventListener('keydown', e=>{
   const k = e.key.toLowerCase();
   if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)) e.preventDefault();
+  if(mode!=='hall' && mode!=='room' && mode!=='viewing') return;
   keys[k] = true;
 });
 addEventListener('keyup', e=>{ keys[e.key.toLowerCase()] = false; });
 addEventListener('blur', clearMovement);
 document.addEventListener('visibilitychange', ()=>{ if(document.hidden) clearMovement(); });
 // 左右に45度まわる(ボタン ↺↻ ／ キーボード Q・E)
-let turning = false;
+let turning = false, turnSerial = 0;
 async function turn(dir){
   if(turning || !(mode==='hall'||mode==='room'||mode==='viewing')) return;
   if(mode==='viewing') exitViewing();
   turning = true;
-  const y0 = yaw;
-  await tween(350, k=>{ yaw = y0 + dir*Math.PI/4*k; });
-  turning = false;
+  const serial = ++turnSerial, y0 = yaw;
+  await tween(350, k=>{ if(serial===turnSerial) yaw = y0 + dir*Math.PI/4*k; });
+  if(serial===turnSerial) turning = false;
 }
 pad.querySelectorAll('button[data-r]').forEach(b=> b.addEventListener('click', ()=>turn(+b.dataset.r)));
 addEventListener('keydown', e=>{ if(e.repeat) return; const k = e.key.toLowerCase(); if(k==='q') turn(1); if(k==='e') turn(-1); });
@@ -894,6 +899,7 @@ function releasePadPointer(e){
 pad.querySelectorAll('button[data-k]').forEach(b=>{
   b.addEventListener('pointerdown', e=>{
     e.preventDefault();
+    if(howtoOpen || (mode!=='hall' && mode!=='room' && mode!=='viewing')) return;
     // 新しい方向を押したら、通知を取り逃した古い押下状態も解除する。
     // 移動パッドは最後に押した1方向を有効にする。
     clearMovement();
