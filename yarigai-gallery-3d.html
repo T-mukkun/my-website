@@ -138,6 +138,10 @@
   #aclose{float:right;margin:-6px -6px 6px 6px;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--gold);font-size:12px}
   #nogl{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;background:var(--cream);font-size:15px;line-height:1.9;z-index:20}
   @media (max-width:640px){ #aboutBtn{font-size:11px;padding:5px 11px} }
+  /* 最初の画面のBGMボタン。押すたびに再生/停止。音源が読めないときは隠す */
+  #bgmBtn{margin-top:12px;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.85);border:1.5px solid var(--gold);font-size:13px;letter-spacing:.1em;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  #bgmBtn[aria-pressed="true"]{background:#fffaf0;color:#8f7230}
+  #bgmBtn[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -147,7 +151,9 @@
   <h1><span class="logo" data-text="やりがいギャラリー">やりがいギャラリー</span><span class="ver">v3.1</span></h1>
   <div class="rule"><span>✦</span></div>
 </div></div>
-<div id="intro"><button id="enter">コチラから入館→</button><p>やりがいにつながった物語を作品として展示<br>物語を味わい、これからのやりがいを育む</p></div>
+<div id="intro"><button id="enter">コチラから入館→</button><p>やりがいにつながった物語を作品として展示<br>物語を味わい、これからのやりがいを育む</p><button id="bgmBtn" type="button" aria-pressed="false">♪ BGM：OFF</button></div>
+<!-- 最初の画面のBGM。音源ファイルを差し替えるときは src を変える -->
+<audio id="bgm" src="yarigai-bgm.mp3" loop preload="metadata"></audio>
 <button id="aboutBtn" type="button" aria-haspopup="dialog" aria-controls="about">このギャラリーについて</button>
 <div id="about" role="dialog" aria-modal="true" aria-labelledby="aboutTitle"><div class="card">
   <button id="aclose" type="button">✕ とじる</button>
@@ -671,8 +677,29 @@ function updateGuides(){
 }
 function setHint(on){ guidesOn = on; pad.classList.toggle('on', on); $('back').classList.toggle('on', on); updateGuides(); }
 
+/* ---------- 最初の画面のBGM ----------
+   ブラウザは音の自動再生を止めるので、最初はOFF。ボタンを押したら鳴らす。
+   鳴らすのは最初の画面だけ：入館したら止め、正面に戻ったらONだった場合だけ再開する。 */
+const bgm = $('bgm'), bgmBtn = $('bgmBtn');
+let bgmWanted = false;
+bgm.volume = 0.5;
+// 音源が無い・読めないときはボタンを出さない(読み込みエラーがこの行より先に起きる場合もあるので両方見る)
+if(bgm.error) bgmBtn.hidden = true;
+bgm.addEventListener('error', ()=>{ bgmBtn.hidden = true; });
+function setBgmLabel(on){ bgmBtn.textContent = on ? '♪ BGM：ON' : '♪ BGM：OFF'; bgmBtn.setAttribute('aria-pressed', on); }
+async function playBgm(){
+  try{ await bgm.play(); setBgmLabel(true); }
+  catch(e){ bgmWanted = false; setBgmLabel(false); }
+}
+function pauseBgm(){ bgm.pause(); setBgmLabel(false); }
+bgmBtn.onclick = ()=>{
+  bgmWanted = bgm.paused;
+  if(bgmWanted) playBgm(); else pauseBgm();
+};
+
 $('enter').onclick = async ()=>{
   if(mode!=='outside') return; mode='busy'; buddyEntering = true;
+  if(!bgm.paused){ bgm.pause(); setBgmLabel(false); }
   $('intro').style.opacity = 0; setTimeout(()=>$('intro').style.display='none', 600);
   $('titleScreen').classList.add('hide');
   await moveCam(new THREE.Vector3(0,1.7,6), 0, .08, 1800);
@@ -758,6 +785,7 @@ async function goBack(){
     const intro = $('intro'); intro.style.display = ''; requestAnimationFrame(()=>{ intro.style.opacity = 1; });
     $('titleScreen').classList.remove('hide');
     outsideT0 = performance.now(); mode='outside';
+    if(bgmWanted) playBgm();
   }
 }
 $('back').onclick = goBack;
