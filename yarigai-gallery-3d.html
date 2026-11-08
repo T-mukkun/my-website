@@ -138,10 +138,11 @@
   #aclose{float:right;margin:-6px -6px 6px 6px;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--gold);font-size:12px}
   #nogl{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;background:var(--cream);font-size:15px;line-height:1.9;z-index:20}
   @media (max-width:640px){ #aboutBtn{font-size:11px;padding:5px 11px} }
-  /* 最初の画面のBGMボタン。押すたびに再生/停止。音源が読めないときは隠す */
+  /* 正面・ホールのBGMボタン。押すたびに再生/停止。音源が読めないときは隠す */
   #bgmBtn{margin-top:12px;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.85);border:1.5px solid var(--gold);font-size:13px;letter-spacing:.1em;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.12)}
   #bgmBtn[aria-pressed="true"]{background:#fffaf0;color:#8f7230}
   #bgmBtn[hidden]{display:none}
+  #bgmBtn.in-hall{position:fixed;top:12px;left:12px;margin:0;z-index:10}
 </style>
 </head>
 <body>
@@ -152,7 +153,7 @@
   <div class="rule"><span>✦</span></div>
 </div></div>
 <div id="intro"><button id="enter">コチラから入館→</button><p>やりがいにつながった物語を作品として展示<br>物語を味わい、これからのやりがいを育む</p><button id="bgmBtn" type="button" aria-pressed="false">♪ BGM：OFF</button></div>
-<!-- 最初の画面のBGM。音源ファイルを差し替えるときは src を変える -->
+<!-- 正面・ホールのBGM。音源ファイルを差し替えるときは src を変える -->
 <audio id="bgm" src="yarigai-bgm.mp3" loop preload="metadata"></audio>
 <button id="aboutBtn" type="button" aria-haspopup="dialog" aria-controls="about">このギャラリーについて</button>
 <div id="about" role="dialog" aria-modal="true" aria-labelledby="aboutTitle"><div class="card">
@@ -679,27 +680,40 @@ function setHint(on){ guidesOn = on; pad.classList.toggle('on', on); $('back').c
 
 /* ---------- 最初の画面のBGM ----------
    ブラウザは音の自動再生を止めるので、最初はOFF。ボタンを押したら鳴らす。
-   鳴らすのは最初の画面だけ：入館したら止め、正面に戻ったらONだった場合だけ再開する。 */
+   正面とホールで操作可能。入室時はOFFにし、ホールへ戻るとボタンを再表示する。 */
 const bgm = $('bgm'), bgmBtn = $('bgmBtn');
-let bgmWanted = false;
+let bgmWanted = false, bgmZone = 'outside';
 bgm.volume = 0.5;
 // 音源が無い・読めないときはボタンを出さない(読み込みエラーがこの行より先に起きる場合もあるので両方見る)
 if(bgm.error) bgmBtn.hidden = true;
 bgm.addEventListener('error', ()=>{ bgmBtn.hidden = true; });
 function setBgmLabel(on){ bgmBtn.textContent = on ? '♪ BGM：ON' : '♪ BGM：OFF'; bgmBtn.setAttribute('aria-pressed', on); }
 async function playBgm(){
-  try{ await bgm.play(); setBgmLabel(true); }
+  try{
+    await bgm.play();
+    if(!bgmWanted || bgmZone==='room'){ pauseBgm(); return; }
+    setBgmLabel(true);
+  }
   catch(e){ bgmWanted = false; setBgmLabel(false); }
 }
 function pauseBgm(){ bgm.pause(); setBgmLabel(false); }
+function setBgmZone(zone){
+  bgmZone = zone;
+  if(zone==='room'){ bgmWanted=false; pauseBgm(); }
+  const inHall = zone!=='outside';
+  (inHall ? document.body : $('intro')).appendChild(bgmBtn);
+  bgmBtn.classList.toggle('in-hall', inHall);
+  bgmBtn.hidden = zone==='room' || !!bgm.error;
+}
 bgmBtn.onclick = ()=>{
+  if(bgmZone==='room') return;
   bgmWanted = bgm.paused;
   if(bgmWanted) playBgm(); else pauseBgm();
 };
 
 $('enter').onclick = async ()=>{
   if(mode!=='outside') return; mode='busy'; buddyEntering = true;
-  if(!bgm.paused){ bgm.pause(); setBgmLabel(false); }
+  setBgmZone('hall');
   $('intro').style.opacity = 0; setTimeout(()=>$('intro').style.display='none', 600);
   $('titleScreen').classList.add('hide');
   await moveCam(new THREE.Vector3(0,1.7,6), 0, .08, 1800);
@@ -711,6 +725,7 @@ $('enter').onclick = async ()=>{
 
 async function enterDoor(i){
   if(mode!=='hall' || hallStage!=='doors' || howtoOpen) return; mode='busy'; setHint(false);
+  setBgmZone('room');
   const d = doors[i], cx = d.t.cx;
   await moveCam(new THREE.Vector3(cx,1.6,HALL_BACK+2.4), 0, 0, 1000);
   await tween(900, k=>{ d.pivot.rotation.y = 1.65*k; });
@@ -771,7 +786,7 @@ async function goBack(){
     await moveCam(new THREE.Vector3(d.t.cx,1.6,HALL_BACK+2.4), 0, 0, 1600);
     tween(800, k=>{ d.pivot.rotation.y = 1.65*(1-k); });
     const c = doorPoint(); await moveCam(c.p, c.yaw, c.pitch, 1400);
-    hallStage='doors'; mode='hall'; roomIdx=-1; setHint(true); return;
+    hallStage='doors'; mode='hall'; roomIdx=-1; setHint(true); setBgmZone('hall'); return;
   }
   if(mode==='hall'){
     if(hallStage==='doors'){
@@ -789,7 +804,7 @@ async function goBack(){
     const intro = $('intro'); intro.style.display = ''; requestAnimationFrame(()=>{ intro.style.opacity = 1; });
     $('titleScreen').classList.remove('hide');
     outsideT0 = performance.now(); mode='outside';
-    if(bgmWanted) playBgm();
+    setBgmZone('outside');
   }
 }
 $('back').onclick = goBack;
