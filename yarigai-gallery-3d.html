@@ -56,7 +56,8 @@
   ul.howto li{display:grid;grid-template-columns:3.4em 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:7px 4px;border-top:1px solid #ece4cf}
   ul.howto li:first-child{border-top:0}
   ul.howto .ic{grid-row:1 / span 2;text-align:center;font-size:20px;line-height:1;white-space:nowrap;color:#8f6a2a}
-  ul.howto b{font-size:14px;letter-spacing:.04em}
+  ul.howto .action{font-size:14px;letter-spacing:.04em;font-weight:normal}
+  ul.howto .action strong{font-weight:700}
   ul.howto .what{font-size:12.5px;color:#5a6a60}
   /* 歩いて近づこうとしている人への一言(目立たせる) */
   #hint.nudge{background:#fffaf0;border:2px solid var(--gold);color:var(--ink);font-size:13px;font-weight:bold;padding:8px 18px;box-shadow:0 4px 14px rgba(143,114,48,.3);animation:nudge .6s ease-in-out 3}
@@ -191,7 +192,7 @@
   <h2 id="howtoTitle">楽しみ方</h2>
   <p class="lead">以下の操作で作品の前まで行き鑑賞してください</p>
   <div id="howtoList"></div>
-  <p class="note">あとで見たいときは、右上の「このギャラリーについて」にあります。</p>
+  <p class="note">あとで見たいときは、右上の「<strong>このギャラリーについて</strong>」にあります。</p>
   <button id="howtoStart" type="button">はじめる</button>
 </div></div>
 <div id="swipe" aria-hidden="true"><div class="hand">👆</div><div class="txt"></div></div>
@@ -626,7 +627,7 @@ const HOWTO = TOUCH ? [
   ['←','前画面に戻る：左下の戻るボタン','ひとつ前の場所へ戻れます。'],
   ['🖼️','作品鑑賞：作品をクリック','遠くからでも目の前へ'],
 ];
-const howtoHTML = '<ul class="howto">' + HOWTO.map(([ic,a,b])=>`<li><span class="ic" aria-hidden="true">${ic}</span><b>${a}</b><span class="what">${b}</span></li>`).join('') + '</ul>';
+const howtoHTML = '<ul class="howto">' + HOWTO.map(([ic,a,b])=>`<li><span class="ic" aria-hidden="true">${ic}</span><span class="action">${a.includes('：') ? '<strong>' + a.slice(0,a.indexOf('：')) + '</strong>' + a.slice(a.indexOf('：')) : '<strong>' + a + '</strong>'}</span><span class="what">${b}</span></li>`).join('') + '</ul>';
 $('howtoList').innerHTML = howtoHTML;
 $('aboutHowto').innerHTML = howtoHTML;
 let howtoOpen = false, skipSwipe = false;
