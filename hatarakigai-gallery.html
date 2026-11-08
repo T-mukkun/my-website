@@ -292,7 +292,7 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
     var t=el('time','work-date',(w.date||'').replace(/-/g,'.'));t.dateTime=w.date||'';art.appendChild(t);
     if(w.comment){
       var btn=el('button','comment-toggle');btn.type='button';
-      btn.innerHTML='アンカーストーリー <span class="chev" aria-hidden="true">▼</span>';
+      btn.innerHTML='アンカーストーリー（作者コメント） <span class="chev" aria-hidden="true">▼</span>';
       var box=el('div','work-comment',w.comment);box.id=w.id+'-comment';box.hidden=true;
       btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-controls',box.id);
       btn.addEventListener('click',function(){var open=box.hidden;box.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false');});
