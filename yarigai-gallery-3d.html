@@ -582,12 +582,13 @@ function moveCam(to, toYaw, toPitch, ms){
 const $ = id => document.getElementById(id);
 const hint = $('hint'), pad = $('pad');
 let buddyNoteTimer = 0;
-function showBuddyNote(){
+function showBuddyNote(message = '私は案内役です。アバターの操作はできません。', duration = 4500, kind = 'intro'){
   const note = $('buddyNote');
+  note.textContent = message; note.dataset.kind = kind;
   note.classList.add('on');
   updateBuddyNotePosition();
   clearTimeout(buddyNoteTimer);
-  buddyNoteTimer = setTimeout(()=>note.classList.remove('on'), 4500);
+  buddyNoteTimer = setTimeout(()=>note.classList.remove('on'), duration);
 }
 function updateBuddyNotePosition(){
   const note = $('buddyNote');
@@ -619,13 +620,13 @@ const HOWTO = TOUCH ? [
   ['✥','移動する：右下の矢印ボタン','▲▼◀▶を押すと、前後左右に進めます。'],
   ['🚪','入室：扉をタップ','部屋に入れます。'],
   ['←','前画面に戻る：左下の戻るボタン','ひとつ前の場所へ戻れます。'],
-  ['🖼️','作品鑑賞：作品をタップ','遠くからでも目の前へ'],
+  ['🖼️','作品鑑賞：作品をタップ','正面まで自動で移動できます。'],
 ] : [
   ['🖱️','見回す：画面をドラッグ','左ボタンを押したまま動かすと、その場で見回せます。'],
   ['⌨️','移動する：WASD／矢印キー','キーを押すと、前後左右に進めます。'],
   ['🚪','入室：扉をクリック','部屋に入れます。'],
   ['←','前画面に戻る：左下の戻るボタン','ひとつ前の場所へ戻れます。'],
-  ['🖼️','作品鑑賞：作品をクリック','遠くからでも目の前へ'],
+  ['🖼️','作品鑑賞：作品をクリック','正面まで自動で移動できます。'],
 ];
 const howtoHTML = '<ul class="howto">' + HOWTO.map(([ic,a,b])=>`<li><span class="ic" aria-hidden="true">${ic}</span><span class="action">${a.includes('：') ? '<strong>' + a.slice(0,a.indexOf('：')) + '</strong>' + a.slice(a.indexOf('：')) : '<strong>' + a + '</strong>'}</span><span class="what">${b}</span></li>`).join('') + '</ul>';
 $('howtoList').innerHTML = howtoHTML;
@@ -648,14 +649,16 @@ swipe.querySelector('.txt').textContent = TOUCH
   : '見回す：画面をドラッグ ／ 移動する：WASD・矢印キー';
 let guidesOn = false;
 // 展示室で、額をタップせずに歩いて近づこうとしている人に、一言をもう一度目立たせて出す(部屋に入るたびに1回まで)
-let roomWalk = 0, roomTapped = false, nudged = false, nudgeUntil = 0;
-function resetRoomNudge(){ roomWalk = 0; roomTapped = false; nudged = false; nudgeUntil = 0; }
+let roomWalk = 0, roomTapped = false, nudged = false;
+function hideRoomNudge(){
+  const note = $('buddyNote');
+  if(note.dataset.kind==='work'){ clearTimeout(buddyNoteTimer); note.classList.remove('on'); }
+}
+function resetRoomNudge(){ roomWalk = 0; roomTapped = false; nudged = false; hideRoomNudge(); }
 function updateGuides(){
   let text = '';
   if(mode==='hall' && !learned.door)  text = TOUCH ? '扉をタップすると、部屋に入れます' : '扉をクリックすると、部屋に入れます';
-  // 展示室：額を覚えるまで、または「歩いて近づこうとしている人」へのお知らせ中(nudgeUntil)に出す
-  if(mode==='room' && (!learned.frame || performance.now() < nudgeUntil)) text = TOUCH ? '遠くの額も、タップすると目の前まで行けます' : '遠くの額も、クリックすると目の前まで行けます';
-  hint.classList.toggle('nudge', mode==='room' && performance.now() < nudgeUntil);
+  // 展示室の移動案内は、必要なときだけ案内役の吹き出しで伝える。
   if(text) hint.textContent = text;
   hint.style.opacity = guidesOn && text && !howtoOpen ? 1 : 0;
   // 見回しの手本は、楽しみ方のカードを見た回には出さない(内容が重なるため)
@@ -727,7 +730,7 @@ async function goBack(){
   if(mode==='room'){
     if(!atPoint(roomPoint(roomIdx))) return goPoint(roomPoint(roomIdx));
     // 部屋の入口 → ドア前：後ろ向きに部屋を出て、扉を閉める
-    mode='busy'; setHint(false); $('roomtitle').style.display='none';
+    mode='busy'; setHint(false); hideRoomNudge(); $('roomtitle').style.display='none';
     const d = doors[roomIdx];
     await moveCam(new THREE.Vector3(d.t.cx,1.6,HALL_BACK+2.4), 0, 0, 1600);
     tween(800, k=>{ d.pivot.rotation.y = 1.65*(1-k); });
@@ -781,7 +784,7 @@ renderer.domElement.addEventListener('pointermove', e=>{
 renderer.domElement.addEventListener('pointerup', e=>{
   if(drag && !drag.moved && buddyAt(e)){ showBuddyNote(); drag = null; return; }
   if(drag && !drag.moved && mode==='hall'){ const i = doorAt(e); if(i>=0){ learn('door'); enterDoor(i); } }
-  if(drag && !drag.moved && (mode==='room'||mode==='viewing')){ const m = workAt(e); if(m){ roomTapped = true; nudgeUntil = 0; learn('frame'); updateGuides(); selectWork(m); } }
+  if(drag && !drag.moved && (mode==='room'||mode==='viewing')){ const m = workAt(e); if(m){ roomTapped = true; hideRoomNudge(); learn('frame'); updateGuides(); selectWork(m); } }
   drag = null;
 });
 ['pointercancel','lostpointercapture'].forEach(ev=>renderer.domElement.addEventListener(ev, ()=>{ drag = null; }));
@@ -1031,7 +1034,6 @@ renderer.setAnimationLoop(t=>{
   });
   const washOp = learned.frame ? .6 : .45 + .6*pulse;
   washes.forEach(w=>{ w.material.opacity = washOp; });
-  if(nudgeUntil && performance.now() >= nudgeUntil){ nudgeUntil = 0; updateGuides(); }   // お知らせの時間が終わったら戻す
   if(mode==='outside'){
     // 外観のゆっくりした揺れ。外に出た時刻から0で始め、3秒かけて強める(戻ったときに横へ跳ばないように)
     const s = t - outsideT0, ramp = Math.min(1, s/3000);
@@ -1044,7 +1046,10 @@ renderer.setAnimationLoop(t=>{
       // 展示室で3秒ほど歩いても額をタップしていなければ、一言を6秒間目立たせて出す
       if(mode==='room' && !roomTapped && !nudged){
         roomWalk += dt;
-        if(roomWalk > 3){ nudged = true; nudgeUntil = performance.now() + 6000; updateGuides(); }
+        if(roomWalk > 3){
+          nudged = true;
+          showBuddyNote(TOUCH ? '作品をタップすると、正面まで自動で移動できます。' : '作品をクリックすると、正面まで自動で移動できます。', 6000, 'work');
+        }
       }
       const sp = 3*dt;
       pos.x += (-Math.sin(yaw)*f + Math.cos(yaw)*s)*sp;
