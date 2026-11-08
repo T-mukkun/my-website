@@ -89,10 +89,11 @@
   @media (pointer:coarse){#pad.on{display:grid}}
   /* 説明と同じ表示状態で、実際の操作ボタンを指し示す */
   @media (pointer:coarse){
-    #howto{padding-bottom:142px}
-    #howto .card{max-height:calc(100vh - 158px);max-height:calc(100dvh - 158px);overflow-y:auto}
+    #howto{padding-bottom:166px}
+    #howto .card{max-height:calc(100vh - 182px);max-height:calc(100dvh - 182px);overflow-y:auto}
+    #back{max-width:calc(100vw - 192px);padding:9px 10px;font-size:13px;line-height:1.25}
     #howto.on ~ #pad.on{z-index:10;pointer-events:none;outline:3px solid var(--gold);outline-offset:5px;border-radius:12px}
-    #howto.on ~ #pad.on::before{content:'移動ボタン →';position:absolute;right:calc(100% + 14px);top:50%;transform:translateY(-50%);white-space:nowrap;padding:8px;border:2px solid var(--gold);border-radius:10px;background:#fffdf6;color:var(--ink);font-size:14px;font-weight:bold;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+    #howto.on ~ #pad.on::before{content:'移動ボタン ↓';position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);white-space:nowrap;padding:5px 8px;border:2px solid var(--gold);border-radius:10px;background:#fffdf6;color:var(--ink);font-size:14px;font-weight:bold;box-shadow:0 3px 10px rgba(0,0,0,.2)}
   }
   #mimg{max-height:60vh;object-fit:contain;background:#f4efe2}
   @media (max-width:640px){
@@ -146,6 +147,9 @@
   #bgmBtn[aria-pressed="true"]{background:#fffaf0;color:#8f7230}
   #bgmBtn[hidden]{display:none}
   #bgmBtn.in-hall{position:fixed;left:50%;bottom:7vh;transform:translateX(-50%);margin:0;z-index:10}
+  @media (pointer:coarse){
+    #bgmBtn.in-hall{left:12px;bottom:72px;transform:none;max-width:calc(100vw - 192px);padding:7px 10px;font-size:12px;letter-spacing:0;white-space:nowrap}
+  }
 </style>
 </head>
 <body>
