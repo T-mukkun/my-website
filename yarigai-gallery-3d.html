@@ -73,6 +73,8 @@
   #hint{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.8);font-size:12px;opacity:0;transition:opacity .6s;white-space:nowrap;pointer-events:none}
   #back{position:fixed;left:12px;bottom:14px;padding:9px 18px;border-radius:999px;background:#fff;border:1.5px solid var(--gold);font-size:14px;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.18);display:none}
   #back.on{display:block}
+  /* 説明の暗幕より手前に置き、説明中も戻れるようにする */
+  #howto.on ~ #back.on{z-index:10}
   #detail{position:fixed;left:50%;bottom:108px;transform:translateX(-50%);padding:9px 20px;border-radius:12px;background:#fff;border:2px solid var(--gold);white-space:nowrap;font-size:14px;font-weight:bold;letter-spacing:.08em;color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.2);display:none;z-index:5}
   #roomtitle{position:fixed;top:12px;left:50%;transform:translateX(-50%);padding:8px 22px;border-radius:12px;background:rgba(255,255,255,.88);font-size:16px;letter-spacing:.12em;display:none;box-shadow:0 2px 8px rgba(0,0,0,.12)}
   #pad{position:fixed;right:14px;bottom:14px;display:none;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:6px}
@@ -716,6 +718,10 @@ async function goPoint(c){
 }
 async function goBack(){
   if(turning || !(mode==='hall'||mode==='room'||mode==='viewing')) return;
+  if(howtoOpen){
+    howtoOpen = false; $('howto').classList.remove('on');
+    clearMovement(); updateGuides();
+  }
   if(mode==='viewing') exitViewing();
   if(mode==='room'){
     if(!atPoint(roomPoint(roomIdx))) return goPoint(roomPoint(roomIdx));
