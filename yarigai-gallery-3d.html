@@ -1046,11 +1046,11 @@ renderer.setAnimationLoop(t=>{
   } else if(mode==='hall' || mode==='room' || mode==='viewing'){
     const f = (keys['w']||keys['arrowup']?1:0) - (keys['s']||keys['arrowdown']?1:0);
     const s = (keys['d']||keys['arrowright']?1:0) - (keys['a']||keys['arrowleft']?1:0);
-    // 展示室で額をタップせずに、合計3秒ほど歩くか、合計5秒ほど見回し(ドラッグ)を続けたら、案内役の吹き出しで一言を6秒間出す
+    // 展示室で額をタップせずに、合計3秒ほど歩くか、合計3秒ほど見回し(ドラッグ)を続けたら、案内役の吹き出しで一言を6秒間出す
     if(mode==='room' && !roomTapped && !nudged){
       if(f||s) roomWalk += dt;
       if(drag && drag.moved) roomLook += dt;
-      if(roomWalk > 3 || roomLook > 5){
+      if(roomWalk > 3 || roomLook > 3){
         nudged = true;
         showBuddyNote(TOUCH ? '作品をタップすると、正面まで自動で移動できます。' : '作品をクリックすると、正面まで自動で移動できます。', 6000, 'work');
       }
