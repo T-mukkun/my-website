@@ -648,13 +648,13 @@ swipe.querySelector('.txt').textContent = TOUCH
   ? '見回す：画面をドラッグ ／ 移動する：右下の矢印ボタン'
   : '見回す：画面をドラッグ ／ 移動する：WASD・矢印キー';
 let guidesOn = false;
-// 展示室で、額をタップせずに歩いて近づこうとしている人に、一言をもう一度目立たせて出す(部屋に入るたびに1回まで)
-let roomWalk = 0, roomTapped = false, nudged = false;
+// 展示室で、額をタップせずに歩き続けたり見回し続けたりしている人に、一言を出す(部屋に入るたびに1回まで)
+let roomWalk = 0, roomLook = 0, roomTapped = false, nudged = false;
 function hideRoomNudge(){
   const note = $('buddyNote');
   if(note.dataset.kind==='work'){ clearTimeout(buddyNoteTimer); note.classList.remove('on'); }
 }
-function resetRoomNudge(){ roomWalk = 0; roomTapped = false; nudged = false; hideRoomNudge(); }
+function resetRoomNudge(){ roomWalk = 0; roomLook = 0; roomTapped = false; nudged = false; hideRoomNudge(); }
 function updateGuides(){
   let text = '';
   if(mode==='hall' && !learned.door)  text = TOUCH ? '扉をタップすると、部屋に入れます' : '扉をクリックすると、部屋に入れます';
@@ -1041,16 +1041,17 @@ renderer.setAnimationLoop(t=>{
   } else if(mode==='hall' || mode==='room' || mode==='viewing'){
     const f = (keys['w']||keys['arrowup']?1:0) - (keys['s']||keys['arrowdown']?1:0);
     const s = (keys['d']||keys['arrowright']?1:0) - (keys['a']||keys['arrowleft']?1:0);
+    // 展示室で額をタップせずに、合計3秒ほど歩くか、合計5秒ほど見回し(ドラッグ)を続けたら、案内役の吹き出しで一言を6秒間出す
+    if(mode==='room' && !roomTapped && !nudged){
+      if(f||s) roomWalk += dt;
+      if(drag && drag.moved) roomLook += dt;
+      if(roomWalk > 3 || roomLook > 5){
+        nudged = true;
+        showBuddyNote(TOUCH ? '作品をタップすると、正面まで自動で移動できます。' : '作品をクリックすると、正面まで自動で移動できます。', 6000, 'work');
+      }
+    }
     if(f||s){
       if(mode==='viewing') exitViewing();
-      // 展示室で3秒ほど歩いても額をタップしていなければ、一言を6秒間目立たせて出す
-      if(mode==='room' && !roomTapped && !nudged){
-        roomWalk += dt;
-        if(roomWalk > 3){
-          nudged = true;
-          showBuddyNote(TOUCH ? '作品をタップすると、正面まで自動で移動できます。' : '作品をクリックすると、正面まで自動で移動できます。', 6000, 'work');
-        }
-      }
       const sp = 3*dt;
       pos.x += (-Math.sin(yaw)*f + Math.cos(yaw)*s)*sp;
       pos.z += (-Math.cos(yaw)*f - Math.sin(yaw)*s)*sp;
