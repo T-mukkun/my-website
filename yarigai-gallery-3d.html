@@ -150,6 +150,8 @@
   @media (pointer:coarse){
     #bgmBtn.in-hall{left:12px;bottom:72px;transform:none;max-width:calc(100vw - 192px);padding:7px 10px;font-size:12px;letter-spacing:0;white-space:nowrap}
   }
+  #titleScreen .gallery-catchphrase{margin:10px auto 0;padding:0 12px;max-width:100vw;font-size:clamp(14px,3.8vw,22px);font-weight:500;line-height:1.6;letter-spacing:.06em;color:#365c49;text-shadow:0 1px 5px #fffdf4,0 0 12px #fffdf4}
+  @media (orientation:landscape) and (max-height:520px){#titleScreen .gallery-catchphrase{margin-top:4px;font-size:14px}}
 </style>
 </head>
 <body>
@@ -157,6 +159,7 @@
 <div id="titleScreen" aria-hidden="true"><div class="inner">
   <small>The Yarigai Gallery</small>
   <h1><span class="logo" data-text="やりがいギャラリー">やりがいギャラリー</span><span class="ver">v3.1</span></h1>
+  <p class="gallery-catchphrase">あなたが嬉しいと、私も嬉しい。</p>
   <div class="rule"><span>✦</span></div>
 </div></div>
 <div id="intro"><button id="enter">コチラから入館→</button><p>やりがいにつながった物語を作品として展示<br>物語を味わい、これからのやりがいを育む</p><button id="bgmBtn" type="button" aria-pressed="false">♪ BGM：OFF</button></div>
