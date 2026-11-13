@@ -19,7 +19,7 @@
   #intro{position:fixed;left:0;right:0;bottom:0;padding:24px 20px max(24px,env(safe-area-inset-bottom));text-align:center;transition:opacity .6s;z-index:3;background:linear-gradient(transparent,rgba(246,245,230,.84) 38%,rgba(246,245,230,.96));}
   #intro p{margin:0 0 18px;font-size:14px;line-height:1.9;letter-spacing:.1em;color:#40594b}
   button{font-family:inherit;cursor:pointer;border:0}
-  #enter{display:flex;align-items:center;justify-content:space-between;gap:40px;min-height:56px;min-width:280px;margin:0 auto;padding:15px 25px;border-radius:999px;background:#365d4b;color:#fffdf4;font-size:16px;font-weight:bold;letter-spacing:.1em;box-shadow:0 6px 20px rgba(47,84,65,.19),inset 0 0 0 1px rgba(237,219,170,.45);border:1px solid #365d4b;transition:background .2s,transform .2s}
+  #enter{display:flex;align-items:center;justify-content:center;gap:12px;min-height:56px;min-width:280px;margin:0 auto;padding:15px 25px;border-radius:999px;background:#365d4b;color:#fffdf4;font-size:16px;font-weight:bold;letter-spacing:.1em;box-shadow:0 6px 20px rgba(47,84,65,.19),inset 0 0 0 1px rgba(237,219,170,.45);border:1px solid #365d4b;transition:background .2s,transform .2s}
   #enter::after{content:'→';font-size:22px;font-weight:normal;line-height:1}
   #enter:hover{background:#294d3c;transform:translateY(-2px)}
   #enter:focus-visible,#bgmBtn:focus-visible,#aboutBtn:focus-visible{outline:3px solid #8f7230;outline-offset:4px}
@@ -169,7 +169,7 @@
   @media (orientation:landscape) and (max-height:520px){
     #titleScreen{top:36px;right:42%}#titleScreen small,#titleScreen h1 .ver{display:none}
     #intro{left:auto;width:42%;padding:18px 20px max(12px,env(safe-area-inset-bottom));border-radius:24px 0 0 0}
-    #intro p{font-size:11px;margin-bottom:8px}#enter{min-width:0;width:100%;min-height:48px;font-size:14px;gap:14px}
+    #intro p{font-size:11px;margin-bottom:8px}#enter{min-width:0;width:100%;min-height:48px;font-size:14px;gap:10px}
     #intro #bgmBtn{min-height:36px;margin-top:6px}
   }
 </style>
