@@ -16,29 +16,30 @@
   html,body{margin:0;height:100%;overflow:hidden;background:#cfe3ef;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;color:var(--ink)}
   canvas{display:block;touch-action:none}
   body::after{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 62%,rgba(255,240,225,.28) 100%)}
-  #intro{position:fixed;left:0;right:0;bottom:7vh;text-align:center;transition:opacity .6s}
-  #intro p{margin:14px 0 0;font-size:15px;line-height:1.8;letter-spacing:.2em;color:#5a6a60}
+  #intro{position:fixed;left:0;right:0;bottom:0;padding:24px 20px max(24px,env(safe-area-inset-bottom));text-align:center;transition:opacity .6s;z-index:3;background:linear-gradient(transparent,rgba(246,245,230,.84) 38%,rgba(246,245,230,.96));}
+  #intro p{margin:0 0 18px;font-size:14px;line-height:1.9;letter-spacing:.1em;color:#40594b}
   button{font-family:inherit;cursor:pointer;border:0}
-  #enter{padding:12px 26px;border-radius:12px;background:#fff;color:var(--ink);font-size:16px;font-weight:bold;letter-spacing:.1em;box-shadow:0 4px 14px rgba(0,0,0,.2);border:2px solid var(--gold)}
-  #enter:hover{background:#fffaf0}
+  #enter{display:flex;align-items:center;justify-content:space-between;gap:40px;min-height:56px;min-width:280px;margin:0 auto;padding:15px 25px;border-radius:999px;background:#365d4b;color:#fffdf4;font-size:16px;font-weight:bold;letter-spacing:.1em;box-shadow:0 6px 20px rgba(47,84,65,.19),inset 0 0 0 1px rgba(237,219,170,.45);border:1px solid #365d4b;transition:background .2s,transform .2s}
+  #enter::after{content:'→';font-size:22px;font-weight:normal;line-height:1}
+  #enter:hover{background:#294d3c;transform:translateY(-2px)}
+  #enter:focus-visible,#bgmBtn:focus-visible,#aboutBtn:focus-visible{outline:3px solid #8f7230;outline-offset:4px}
   /* 最初の画面のタイトル(空の部分)。ゆっくり浮かび上がり、ふわふわ漂う */
-  #titleScreen{position:fixed;left:0;right:0;top:clamp(56px,11vh,120px);text-align:center;pointer-events:none;transition:opacity .8s ease,transform .8s ease;z-index:2}
+  #titleScreen{position:fixed;left:0;right:0;top:clamp(68px,11vh,120px);text-align:center;pointer-events:none;transition:opacity .8s ease,transform .8s ease;z-index:2}
   #titleScreen.hide{opacity:0;transform:translateY(-14px)}
-  #titleScreen .inner{display:inline-block;animation:titleIn 1.6s ease-out both, titleFloat 6s ease-in-out 1.6s infinite}
+  #titleScreen .inner{display:inline-block;animation:titleIn 1.6s ease-out both}
   #titleScreen small{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:clamp(13px,2.2vh,18px);letter-spacing:.18em;color:#8f7230;text-shadow:0 0 10px rgba(255,255,255,.9)}
   /* ゲームのロゴ風：太い丸ゴシック、緑のグラデーション、白い太ふち、金色の影 */
-  #titleScreen h1{margin:6px 0 0;font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic UI",sans-serif;font-weight:900;font-size:min(clamp(26px,5.8vh,56px),7.4vw);letter-spacing:.12em;white-space:nowrap;line-height:1.25}
+  #titleScreen h1{margin:12px 0 0;font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic UI",sans-serif;font-weight:900;font-size:min(clamp(26px,5.6vh,52px),7.5vw);letter-spacing:.08em;white-space:nowrap;line-height:1.4}
   /* 3枚重ね：本体(場所取り・透明) / ::before 白ふち＋金の影 / ::after 緑のグラデーション文字 */
   #titleScreen h1 .logo{position:relative;display:inline-block;color:transparent}
   #titleScreen h1 .logo::before,#titleScreen h1 .logo::after{content:attr(data-text);position:absolute;left:0;top:0;white-space:nowrap}
-  #titleScreen h1 .logo::before{color:#fffdf4;-webkit-text-stroke:.22em #fffdf4;
-    text-shadow:0 .1em 0 #d2b06a,0 .14em 0 #b8964f,0 .2em .35em rgba(120,95,40,.35),0 0 .6em rgba(255,255,255,.9)}
+  #titleScreen h1 .logo::before{color:#fffdf4;-webkit-text-stroke:.09em #fffdf4;
+    text-shadow:0 .06em .15em rgba(120,95,40,.15),0 0 .6em rgba(255,255,255,.7)}
   #titleScreen h1 .logo::after{color:transparent;background:linear-gradient(180deg,#78ad94 0%,#46765f 55%,#2f5446 100%);-webkit-background-clip:text;background-clip:text}
-  #titleScreen h1 .ver{display:inline-block;margin-left:.3em;padding:.12em .45em .14em;border-radius:999px;font-family:Georgia,serif;font-style:italic;font-weight:bold;font-size:max(.36em,12px);letter-spacing:.04em;vertical-align:.6em;color:#fff;
-    background:linear-gradient(135deg,#e2c27a,#b8964f);border:2px solid #fffdf4;box-shadow:0 2px 6px rgba(143,114,48,.4)}
+  #titleScreen h1 .ver{display:block;margin:5px 0 0;font-family:Georgia,serif;font-style:italic;font-weight:normal;font-size:11px;letter-spacing:.12em;color:#6c7868}
   #titleScreen .rule{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;color:#b8964f;font-size:13px}
   #titleScreen .rule::before,#titleScreen .rule::after{content:'';width:clamp(40px,12vw,90px);height:1px;background:linear-gradient(90deg,transparent,#b8964f,transparent)}
-  #titleScreen .rule span{animation:twinkle 2.4s ease-in-out infinite}
+  #titleScreen .rule span{font-size:10px}
   @keyframes titleIn{from{opacity:0;transform:translateY(14px) scale(.96);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
   @keyframes titleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
   @keyframes twinkle{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
@@ -99,8 +100,9 @@
   @media (max-width:640px){
     #roomtitle{top:46px;font-size:14px;padding:6px 16px}
     #hint{top:auto;bottom:auto;top:84px;white-space:normal;text-align:center;width:max-content;max-width:88vw;font-size:11px}
-    #enter{font-size:15px;padding:11px 22px}
-    #intro p{font-size:13px;letter-spacing:.12em}
+    #enter{font-size:15px;min-height:56px;width:min(100%,320px);min-width:0;padding:14px 24px}
+    #intro{padding:22px 24px max(18px,env(safe-area-inset-bottom))}
+    #intro p{font-size:12px;letter-spacing:.04em;margin-bottom:14px}
     #modal{padding:8px}
     #modal .card{padding:12px 12px 10px}
     #buddyNote{max-width:220px;padding:10px 13px;font-size:13px}
@@ -143,7 +145,7 @@
   #nogl{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;background:var(--cream);font-size:15px;line-height:1.9;z-index:20}
   @media (max-width:640px){ #aboutBtn{font-size:11px;padding:5px 11px} }
   /* 正面・ホールのBGMボタン。押すたびに再生/停止。音源が読めないときは隠す */
-  #bgmBtn{margin-top:12px;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.85);border:1.5px solid var(--gold);font-size:13px;letter-spacing:.1em;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  #bgmBtn{margin-top:8px;min-height:44px;padding:8px 16px;border-radius:999px;background:rgba(255,255,255,.55);border:1px solid rgba(143,114,48,.3);font-size:12px;letter-spacing:.06em;color:var(--ink)}
   #bgmBtn[aria-pressed="true"]{background:#fffaf0;color:#8f7230}
   #bgmBtn[hidden]{display:none}
   #bgmBtn.in-hall{position:fixed;left:50%;bottom:7vh;transform:translateX(-50%);margin:0;z-index:10}
@@ -152,17 +154,35 @@
   }
   #titleScreen .gallery-catchphrase{margin:10px auto 0;padding:0 12px;max-width:100vw;font-size:clamp(14px,3.8vw,22px);font-weight:500;line-height:1.6;letter-spacing:.06em;color:#365c49;text-shadow:0 1px 5px #fffdf4,0 0 12px #fffdf4}
   @media (orientation:landscape) and (max-height:520px){#titleScreen .gallery-catchphrase{margin-top:4px;font-size:14px}}
+  @media (orientation:portrait){
+    #titleScreen{top:clamp(74px,12vh,118px);top:clamp(74px,12svh,118px)}
+    #titleScreen .gallery-catchphrase{font-size:clamp(14px,4vw,18px);margin-top:13px}
+    #titleScreen small{font-size:12px;letter-spacing:.15em}
+    #titleScreen .rule{margin-top:12px}
+  }
+  @media (max-height:650px) and (orientation:portrait){
+    #titleScreen{top:60px}#titleScreen .rule{display:none}
+    #titleScreen h1{margin-top:6px}#titleScreen .gallery-catchphrase{margin-top:5px}
+    #intro{padding-top:12px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+    #intro p{margin-bottom:8px;font-size:11px}#intro #bgmBtn{margin-top:4px;min-height:36px}
+  }
+  @media (orientation:landscape) and (max-height:520px){
+    #titleScreen{top:36px;right:42%}#titleScreen small,#titleScreen h1 .ver{display:none}
+    #intro{left:auto;width:42%;padding:18px 20px max(12px,env(safe-area-inset-bottom));border-radius:24px 0 0 0}
+    #intro p{font-size:11px;margin-bottom:8px}#enter{min-width:0;width:100%;min-height:48px;font-size:14px;gap:14px}
+    #intro #bgmBtn{min-height:36px;margin-top:6px}
+  }
 </style>
 </head>
 <body>
 <div id="roomtitle"></div>
-<div id="titleScreen" aria-hidden="true"><div class="inner">
+<div id="titleScreen"><div class="inner">
   <small>The Yarigai Gallery</small>
-  <h1><span class="logo" data-text="やりがいギャラリー">やりがいギャラリー</span><span class="ver">v3.1</span></h1>
+  <h1 aria-label="やりがいギャラリー v3.1"><span class="logo" data-text="やりがいギャラリー" aria-hidden="true">やりがいギャラリー</span><span class="ver" aria-hidden="true">v3.1</span></h1>
   <p class="gallery-catchphrase">あなたが嬉しいと、私も嬉しい。</p>
   <div class="rule"><span>✦</span></div>
 </div></div>
-<div id="intro"><button id="enter">コチラから入館→</button><p>やりがいにつながった物語を作品として展示<br>物語を味わい、これからのやりがいを育む</p><button id="bgmBtn" type="button" aria-pressed="false">♪ BGM：OFF</button></div>
+<div id="intro"><p>やりがいにつながった物語を作品として展示<br>物語を味わい、これからのやりがいを育む</p><button id="enter" type="button">ギャラリーに入る</button><button id="bgmBtn" type="button" aria-pressed="false">♪ BGM：OFF</button></div>
 <!-- 正面・ホールのBGM。音源ファイルを差し替えるときは src を変える -->
 <audio id="bgm" src="yarigai-bgm.mp3" loop preload="metadata"></audio>
 <button id="aboutBtn" type="button" aria-haspopup="dialog" aria-controls="about">このギャラリーについて</button>
@@ -298,7 +318,7 @@ function roundRect(g,x,y,w,h,r){
 }
 
 const CREAM = mat(0xf3ecd9), CREAM2 = mat(0xe9dfc6), GOLD = mat(0xb8964f, {roughness:.4, metalness:.3});
-const GLASS = mat(0x9dbfcf, {roughness:.2, emissive:0x35525f, emissiveIntensity:.25});
+const GLASS = mat(0xd5dfcb, {roughness:.28, emissive:0xffdfa0, emissiveIntensity:.22});
 
 /* ---------- 外観 ---------- */
 // 地面と丘
@@ -383,6 +403,13 @@ const fl = makeLeaf(OPEN_W/2, OPEN_H, 0xb8964f), fr = makeLeaf(OPEN_W/2, OPEN_H,
 fr.scale.x = -1;
 frontL.add(fl); frontR.add(fr); scene.add(frontL, frontR);
 box(OPEN_W+.3,.2,.7,GOLD,0,OPEN_H+.1,0); box(.15,OPEN_H,.7,GOLD,-OPEN_W/2-.07,OPEN_H/2,0); box(.15,OPEN_H,.7,GOLD,OPEN_W/2+.07,OPEN_H/2,0);
+// 玄関灯。既存の形を使い、重い影付きライトを増やさず暖かさを添える。
+[-1.75,1.75].forEach(x=>{
+  box(.34,.12,.4,GOLD,x,2.9,.65);
+  box(.24,.42,.24,mat(0xffecc0,{emissive:0xffd48a,emissiveIntensity:.65}),x,2.64,.65);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(255,218,140),transparent:true,opacity:.32,depthWrite:false,blending:THREE.AdditiveBlending}));
+  halo.position.set(x,2.65,.85); halo.scale.set(1.4,1.4,1); scene.add(halo);
+});
 
 // 小道・花壇・木
 const path = new THREE.Mesh(new THREE.PlaneGeometry(4.6,40), mat(0xeee6d0)); path.rotation.x = -Math.PI/2; path.position.set(0,.01,24); scene.add(path);
@@ -574,15 +601,22 @@ THEMES.forEach((t,i)=>{
 /* ---------- カメラ / 操作 ---------- */
 let mode = 'outside', roomIdx = -1, yaw = 0, pitch = .06, outsideT0 = 0;
 const portrait = () => innerWidth/innerHeight < 1;
+const reducedMotion = matchMedia('(prefers-reduced-motion:reduce)');
+const outsideFov = 48;
+const outsideYaw = ()=>innerWidth>innerHeight && innerHeight<=520 ? -.38 : 0;
+const outsidePoint = ()=>({p:new THREE.Vector3(0,2.5,Math.max(24,7.5/(Math.tan(outsideFov*Math.PI/360)*(innerWidth/innerHeight)))),pitch:.1,yaw:outsideYaw()});
+const interiorFov = ()=>innerWidth>=innerHeight ? 60 : Math.min(98,2*Math.atan(Math.tan(35*Math.PI/180)/(innerWidth/innerHeight))*180/Math.PI);
 // 縦長の画面では視野を広げて、横が切れないようにする
 function fitCam(){
   const a = innerWidth/innerHeight;
-  camera.fov = a >= 1 ? 60 : Math.min(98, 2*Math.atan(Math.tan(35*Math.PI/180)/a)*180/Math.PI);
+  camera.fov = mode==='outside' ? outsideFov : interiorFov();
   camera.aspect = a; camera.updateProjectionMatrix();
 }
 fitCam();
 // 最初の位置。空にタイトルが入るよう、建物から少し離れて立つ
-const pos = new THREE.Vector3(0, 1.7, portrait() ? 19 : 21);
+const pos = outsidePoint().p;
+pitch = outsidePoint().pitch;
+yaw = outsideYaw();
 function applyCam(){ camera.position.copy(pos); camera.rotation.set(pitch, yaw, 0); }
 applyCam();
 
@@ -723,9 +757,12 @@ bgmBtn.onclick = ()=>{
 
 $('enter').onclick = async ()=>{
   if(mode!=='outside') return; mode='busy'; buddyEntering = true;
+  const initialFov = camera.fov;
+  tween(1800,k=>{camera.fov=initialFov+(interiorFov()-initialFov)*k;camera.updateProjectionMatrix();});
   setBgmZone('hall');
   $('intro').style.opacity = 0; setTimeout(()=>$('intro').style.display='none', 600);
   $('titleScreen').classList.add('hide');
+  $('titleScreen').setAttribute('aria-hidden','true');
   await moveCam(new THREE.Vector3(0,1.7,6), 0, .08, 1800);
   tween(1400, k=>{ frontL.rotation.y = 1.7*k; frontR.rotation.y = -1.7*k; });
   await moveCam(hallPoint().p, 0, 0, 3200);
@@ -749,7 +786,6 @@ async function enterDoor(i){
    押すたびに、ひとつ前のポイントへ戻る。
    ・ポイントから動いている(歩いた・向きを変えた・額の前にいる)ときは、まず今いる場所のポイントへ
    ・ポイントにいるときは、ひとつ外側のポイントへ */
-const START_Z = portrait() ? 19 : 21;
 // 入館直後の説明位置。縦長画面でも「はじめる」後に前進できる位置にする
 const hallPoint = ()=>({p:new THREE.Vector3(0,1.6, portrait() ? -.9 : -2), yaw:0, pitch:0});
 // 看板を含む3つの扉を画面幅の約90%に収める。縦方向にも余白を確保する。
@@ -810,9 +846,12 @@ async function goBack(){
     mode='busy'; setHint(false);
     await moveCam(new THREE.Vector3(0,1.7,6), 0, .08, 2400);
     tween(1200, k=>{ frontL.rotation.y = 1.7*(1-k); frontR.rotation.y = -1.7*(1-k); });
-    await moveCam(new THREE.Vector3(0,1.7,START_Z), 0, .06, 1600);
+    const exterior = outsidePoint(), initialFov = camera.fov;
+    tween(1600,k=>{camera.fov=initialFov+(outsideFov-initialFov)*k;camera.updateProjectionMatrix();});
+    await moveCam(exterior.p, exterior.yaw, exterior.pitch, 1600);
     const intro = $('intro'); intro.style.display = ''; requestAnimationFrame(()=>{ intro.style.opacity = 1; });
     $('titleScreen').classList.remove('hide');
+    $('titleScreen').removeAttribute('aria-hidden');
     outsideT0 = performance.now(); mode='outside';
     setBgmZone('outside');
   }
@@ -945,6 +984,7 @@ pad.addEventListener('contextmenu', e=>{ e.preventDefault(); clearMovement(); })
 
 addEventListener('resize', ()=>{
   renderer.setSize(innerWidth, innerHeight); fitCam();
+  if(mode==='outside'){pos.copy(outsidePoint().p);pitch=outsidePoint().pitch;yaw=outsideYaw();}
 });
 
 /* ---------- 一緒に歩く人(将来のアバター参加の「匂わせ」) ----------
@@ -1109,7 +1149,8 @@ renderer.setAnimationLoop(t=>{
   if(mode==='outside'){
     // 外観のゆっくりした揺れ。外に出た時刻から0で始め、3秒かけて強める(戻ったときに横へ跳ばないように)
     const s = t - outsideT0, ramp = Math.min(1, s/3000);
-    yaw = Math.sin(s/4000)*.03*ramp; pos.x = Math.sin(s/5000)*.4*ramp;
+    yaw = outsideYaw() + (reducedMotion.matches ? 0 : Math.sin(s/6000)*.009*ramp);
+    pos.x = reducedMotion.matches ? 0 : Math.sin(s/7000)*.12*ramp;
   } else if(mode==='hall' || mode==='room' || mode==='viewing'){
     const f = (keys['w']||keys['arrowup']?1:0) - (keys['s']||keys['arrowdown']?1:0);
     const s = (keys['d']||keys['arrowright']?1:0) - (keys['a']||keys['arrowleft']?1:0);
