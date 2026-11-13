@@ -604,7 +604,7 @@ const portrait = () => innerWidth/innerHeight < 1;
 const reducedMotion = matchMedia('(prefers-reduced-motion:reduce)');
 const outsideFov = 48;
 const outsideYaw = ()=>innerWidth>innerHeight && innerHeight<=520 ? -.38 : 0;
-const outsidePoint = ()=>({p:new THREE.Vector3(0,2.5,Math.max(24,7.5/(Math.tan(outsideFov*Math.PI/360)*(innerWidth/innerHeight)))),pitch:innerWidth<innerHeight?-.02:.1,yaw:outsideYaw()});
+const outsidePoint = ()=>({p:new THREE.Vector3(0,2.5,Math.max(24,7.5/(Math.tan(outsideFov*Math.PI/360)*(innerWidth/innerHeight)))),pitch:innerWidth<innerHeight?.04:.1,yaw:outsideYaw()});
 const interiorFov = ()=>innerWidth>=innerHeight ? 60 : Math.min(98,2*Math.atan(Math.tan(35*Math.PI/180)/(innerWidth/innerHeight))*180/Math.PI);
 // 縦長の画面では視野を広げて、横が切れないようにする
 function fitCam(){
