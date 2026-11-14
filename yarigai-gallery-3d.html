@@ -609,11 +609,13 @@ const portrait = () => innerWidth/innerHeight < 1;
 const reducedMotion = matchMedia('(prefers-reduced-motion:reduce)');
 const outsideFov = 48;
 const outsideYaw = ()=>innerWidth>innerHeight && innerHeight<=520 ? -.38 : 0;
-// スマホ縦画面では文字の実際の領域を避けて、建物を少し上に配置する。
+// 縦画面とタブレット横画面では、文字の実際の領域を避けて建物を配置する。
 let outsideIntroHeight = 190;
 function outsidePoint(){
   let distance = Math.max(24,7.5/(Math.tan(outsideFov*Math.PI/360)*(innerWidth/innerHeight)));
-  if(!portrait()) return {p:new THREE.Vector3(0,2.5,distance),pitch:.1,yaw:outsideYaw()};
+  const fitTablet = matchMedia('(any-pointer:coarse)').matches && innerHeight>520;
+  if(!portrait() && !fitTablet) return {p:new THREE.Vector3(0,2.5,distance),pitch:.1,yaw:outsideYaw()};
+  const preferredPitch = portrait() ? .015 : .1;
   const title = document.getElementById('titleScreen'), intro = document.getElementById('intro');
   outsideIntroHeight = intro.offsetHeight || outsideIntroHeight;
   const top = title.offsetTop + title.offsetHeight + 16;
@@ -630,9 +632,9 @@ function outsidePoint(){
     }
     return {top:Math.min(...pixels),bottom:Math.max(...pixels)};
   }
-  let angle=.015; // 昨日の中間位置(.04)より少し上
+  let angle=preferredPitch; // スマホは少し上、タブレット横画面は従来の向きを基準にする
   for(let n=0;n<60;n++){
-    const base=bounds(distance,.015), height=base.bottom-base.top;
+    const base=bounds(distance,preferredPitch), height=base.bottom-base.top;
     if(bottom-top>height){
       const center=Math.max(top+height/2,Math.min(bottom-height/2,(base.top+base.bottom)/2));
       let lo=-.6, hi=.6;
