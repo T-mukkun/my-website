@@ -172,6 +172,11 @@
     #intro p{font-size:11px;margin-bottom:8px}#enter{min-width:0;width:100%;min-height:48px;font-size:14px;gap:10px}
     #intro #bgmBtn{min-height:36px;margin-top:6px}
   }
+  /* スマホの文字の自動拡大と、幅によるキャッチフレーズの変動を抑える */
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  @media (max-width:640px) and (orientation:portrait){
+    #titleScreen .gallery-catchphrase{font-size:15px}
+  }
 </style>
 </head>
 <body>
@@ -604,7 +609,45 @@ const portrait = () => innerWidth/innerHeight < 1;
 const reducedMotion = matchMedia('(prefers-reduced-motion:reduce)');
 const outsideFov = 48;
 const outsideYaw = ()=>innerWidth>innerHeight && innerHeight<=520 ? -.38 : 0;
-const outsidePoint = ()=>({p:new THREE.Vector3(0,2.5,Math.max(24,7.5/(Math.tan(outsideFov*Math.PI/360)*(innerWidth/innerHeight)))),pitch:innerWidth<innerHeight?.04:.1,yaw:outsideYaw()});
+// スマホ縦画面では文字の実際の領域を避けて、建物を少し上に配置する。
+let outsideIntroHeight = 190;
+function outsidePoint(){
+  let distance = Math.max(24,7.5/(Math.tan(outsideFov*Math.PI/360)*(innerWidth/innerHeight)));
+  if(!portrait()) return {p:new THREE.Vector3(0,2.5,distance),pitch:.1,yaw:outsideYaw()};
+  const title = document.getElementById('titleScreen'), intro = document.getElementById('intro');
+  outsideIntroHeight = intro.offsetHeight || outsideIntroHeight;
+  const top = title.offsetTop + title.offsetHeight + 16;
+  const bottom = innerHeight - outsideIntroHeight - 16;
+  const tan = Math.tan(outsideFov*Math.PI/360);
+  // 屋根から階段までの投影範囲。画面が低いときだけ少し離れて全体を収める。
+  function bounds(d, angle){
+    const pixels = [];
+    for(const y of [-.1,8.05]) for(const z of [-.4,3.6]){
+      const dy=y-2.5, dz=z-d;
+      const cy=Math.cos(angle)*dy+Math.sin(angle)*dz;
+      const cz=-Math.sin(angle)*dy+Math.cos(angle)*dz;
+      pixels.push(innerHeight*(.5-cy/(-cz)/tan/2));
+    }
+    return {top:Math.min(...pixels),bottom:Math.max(...pixels)};
+  }
+  let angle=.015; // 昨日の中間位置(.04)より少し上
+  for(let n=0;n<60;n++){
+    const base=bounds(distance,.015), height=base.bottom-base.top;
+    if(bottom-top>height){
+      const center=Math.max(top+height/2,Math.min(bottom-height/2,(base.top+base.bottom)/2));
+      let lo=-.6, hi=.6;
+      for(let j=0;j<36;j++){
+        const mid=(lo+hi)/2, box=bounds(distance,mid);
+        if((box.top+box.bottom)/2<center) lo=mid; else hi=mid;
+      }
+      angle=(lo+hi)/2;
+      const box=bounds(distance,angle);
+      if(box.top>=top && box.bottom<=bottom) break;
+    }
+    distance*=1.06;
+  }
+  return {p:new THREE.Vector3(0,2.5,distance),pitch:angle,yaw:outsideYaw()};
+}
 const interiorFov = ()=>innerWidth>=innerHeight ? 60 : Math.min(98,2*Math.atan(Math.tan(35*Math.PI/180)/(innerWidth/innerHeight))*180/Math.PI);
 // 縦長の画面では視野を広げて、横が切れないようにする
 function fitCam(){
@@ -982,10 +1025,19 @@ addEventListener('pointerup', releasePadPointer);
 addEventListener('pointercancel', releasePadPointer);
 pad.addEventListener('contextmenu', e=>{ e.preventDefault(); clearMovement(); });
 
+function refreshOutsideLayout(){
+  if(mode!=='outside') return;
+  const point=outsidePoint(); pos.copy(point.p); pitch=point.pitch; yaw=point.yaw;
+}
 addEventListener('resize', ()=>{
-  renderer.setSize(innerWidth, innerHeight); fitCam();
-  if(mode==='outside'){pos.copy(outsidePoint().p);pitch=outsidePoint().pitch;yaw=outsideYaw();}
+  renderer.setSize(innerWidth, innerHeight); fitCam(); refreshOutsideLayout();
 });
+// フォントの読み込み・説明文の折り返しが変わっても、同じ余白を確保する。
+if(typeof ResizeObserver!=='undefined'){
+  const outsideObserver=new ResizeObserver(refreshOutsideLayout);
+  outsideObserver.observe($('titleScreen')); outsideObserver.observe($('intro'));
+}
+if(document.fonts) document.fonts.ready.then(refreshOutsideLayout);
 
 /* ---------- 一緒に歩く人(将来のアバター参加の「匂わせ」) ----------
    ・丸みのある、やさしいパステルの人形。性別・職業はどちらとも取れる姿(看護師の制服にはしない)
