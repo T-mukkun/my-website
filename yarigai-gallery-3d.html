@@ -609,12 +609,12 @@ const portrait = () => innerWidth/innerHeight < 1;
 const reducedMotion = matchMedia('(prefers-reduced-motion:reduce)');
 const outsideFov = 48;
 const outsideYaw = ()=>innerWidth>innerHeight && innerHeight<=520 ? -.38 : 0;
-// 縦画面とタブレット横画面では、文字の実際の領域を避けて建物を配置する。
+// 縦画面と、ある程度高さのある横画面(タブレット/PC)では、文字の実際の領域を避けて建物を配置する。
 let outsideIntroHeight = 190;
 function outsidePoint(){
   let distance = Math.max(24,7.5/(Math.tan(outsideFov*Math.PI/360)*(innerWidth/innerHeight)));
-  const fitTablet = matchMedia('(any-pointer:coarse)').matches && innerHeight>520;
-  if(!portrait() && !fitTablet) return {p:new THREE.Vector3(0,2.5,distance),pitch:.1,yaw:outsideYaw()};
+  const fitLandscape = innerHeight>520;
+  if(!portrait() && !fitLandscape) return {p:new THREE.Vector3(0,2.5,distance),pitch:.1,yaw:outsideYaw()};
   const preferredPitch = portrait() ? .015 : .1;
   const title = document.getElementById('titleScreen'), intro = document.getElementById('intro');
   outsideIntroHeight = intro.offsetHeight || outsideIntroHeight;
