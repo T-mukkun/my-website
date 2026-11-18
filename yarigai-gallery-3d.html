@@ -738,11 +738,13 @@ function outsidePoint(){
     }
     distance*=1.06;
   }
-  // スマホ縦画面だけ、文字の実際の範囲を避けながら約15%大きくする。
+  // スマホ縦画面だけ、文字の実際の範囲に収まる最大サイズまで近づける。
   // 太陽・タイトル下の飾り線は配置制約に含めない。
   if(portrait() && innerWidth<=640 && matchMedia('(pointer:coarse)').matches){
     const catchphrase=title.querySelector('.gallery-catchphrase');
-    const phoneTop=catchphrase ? title.offsetTop+catchphrase.offsetTop+catchphrase.offsetHeight+12 : top;
+    // offsetTopは途中の要素を基準にするため、親をたどって画面位置に換算する。
+    function pageTop(el){let y=0;for(let node=el;node;node=node.offsetParent)y+=node.offsetTop;return y;}
+    const phoneTop=catchphrase ? pageTop(catchphrase)+catchphrase.offsetHeight+12 : top;
     const phoneBottom=bottom+Math.max(0,parseFloat(getComputedStyle(intro).paddingTop)||0);
     const aspect=innerWidth/innerHeight;
     function phoneFit(d){
@@ -770,9 +772,10 @@ function outsidePoint(){
       const a=(lo+hi)/2,p=projected(a);
       return {angle:a,ok:p.top>=phoneTop && p.bottom<=phoneBottom && p.width<=.96};
     }
-    let near=Math.max(16,distance/1.15),far=Math.max(near, distance);
+    // 旧配置の距離を拡大率の上限にしない。文字間の空間と横幅から決める。
+    let near=16,far=Math.max(near,distance);
     while(!phoneFit(far).ok && far<1000)far*=1.1;
-    if(phoneFit(far).ok && far<=distance){
+    if(phoneFit(far).ok){
       for(let j=0;j<36;j++){const mid=(near+far)/2;if(phoneFit(mid).ok)far=mid;else near=mid;}
       return {p:new THREE.Vector3(0,2.5,far),pitch:phoneFit(far).angle,yaw:outsideYaw()};
     }
