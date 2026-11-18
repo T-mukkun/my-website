@@ -149,6 +149,11 @@
   #bgmBtn[aria-pressed="true"]{background:#fffaf0;color:#8f7230}
   #bgmBtn[hidden]{display:none}
   #bgmBtn.in-hall{position:fixed;left:50%;bottom:7vh;transform:translateX(-50%);margin:0;z-index:10}
+  /* パソコンでは右下に置き、楽しみ方のカードや画面中央の案内と重ねない */
+  @media (pointer:fine){
+    #bgmBtn.in-hall{left:auto;right:14px;bottom:14px;transform:none}
+    #howto.on ~ #bgmBtn.in-hall{z-index:8}
+  }
   @media (pointer:coarse){
     #bgmBtn.in-hall{left:12px;bottom:72px;transform:none;max-width:calc(100vw - 192px);padding:7px 10px;font-size:12px;letter-spacing:0;white-space:nowrap}
   }
@@ -164,30 +169,33 @@
     #titleScreen{top:60px}#titleScreen .rule{display:none}
     #titleScreen h1{margin-top:6px}#titleScreen .gallery-catchphrase{margin-top:5px}
     #intro{padding-top:12px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
-    #intro p{margin-bottom:8px;font-size:11px}#intro #bgmBtn{margin-top:4px;min-height:36px}
+    #intro p{margin-bottom:8px;font-size:11px}
   }
   @media (orientation:landscape) and (max-height:520px){
     #titleScreen{top:36px;right:42%}#titleScreen small,#titleScreen h1 .ver{display:none}
     #intro{left:auto;width:42%;padding:18px 20px max(12px,env(safe-area-inset-bottom));border-radius:24px 0 0 0}
     #intro p{font-size:11px;margin-bottom:8px}#enter{min-width:0;width:100%;min-height:48px;font-size:14px;gap:10px}
-    #intro #bgmBtn{min-height:36px;margin-top:6px}
   }
   /* スマホの文字の自動拡大と、幅によるキャッチフレーズの変動を抑える */
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   @media (max-width:640px) and (orientation:portrait){
     #titleScreen .gallery-catchphrase{font-size:15px}
   }
+  /* BGMボタンは最初の画面から同じ場所に置く。入館ボタンや説明文と重ならないよう、下に余白を取る */
+  @media (pointer:coarse) and (max-width:640px) and (orientation:portrait){#intro{padding-bottom:124px}}
+  @media (pointer:fine) and (max-width:640px){#intro{padding-bottom:72px}}
+  @media (pointer:fine) and (orientation:landscape) and (max-height:520px){#intro{padding-bottom:72px}}
 </style>
 </head>
 <body>
 <div id="roomtitle"></div>
 <div id="titleScreen"><div class="inner">
   <small>The Yarigai Gallery</small>
-  <h1 aria-label="やりがいギャラリー v3.1"><span class="logo" data-text="やりがいギャラリー" aria-hidden="true">やりがいギャラリー</span><span class="ver" aria-hidden="true">v3.1</span></h1>
+  <h1 aria-label="やりがいギャラリー v3.2"><span class="logo" data-text="やりがいギャラリー" aria-hidden="true">やりがいギャラリー</span><span class="ver" aria-hidden="true">v3.2</span></h1>
   <p class="gallery-catchphrase">あなたが嬉しいと、私も嬉しい。</p>
   <div class="rule"><span>✦</span></div>
 </div></div>
-<div id="intro"><p>やりがいにつながった物語を作品として展示<br>物語を味わい、これからのやりがいを育む</p><button id="enter" type="button">ギャラリーに入る</button><button id="bgmBtn" type="button" aria-pressed="false">♪ BGM：OFF</button></div>
+<div id="intro"><p>やりがいにつながった物語を作品として展示<br>物語を味わい、これからのやりがいを育む</p><button id="enter" type="button">ギャラリーに入る</button></div>
 <!-- 正面・ホールのBGM。音源ファイルを差し替えるときは src を変える -->
 <audio id="bgm" src="yarigai-bgm.mp3" loop preload="metadata"></audio>
 <button id="aboutBtn" type="button" aria-haspopup="dialog" aria-controls="about">このギャラリーについて</button>
@@ -228,7 +236,8 @@
     公開日：2026年10月18日　版：公開版 v1.0<br>
     更新日：2026年11月5日　版：公開版 v2.0<br>
     更新日：2026年11月6日　版：公開版 v3.0<br>
-    更新日：2026年11月8日　版：公開版 v3.1
+    更新日：2026年11月8日　版：公開版 v3.1<br>
+    更新日：2026年11月18日　版：公開版 v3.2
   </div>
   <p class="to2d"><a href="hatarakigai-gallery.html">通常版（2D）のやりがいギャラリーで見る</a></p>
 </div></div>
@@ -244,6 +253,7 @@
 </div></div>
 <div id="swipe" aria-hidden="true"><div class="hand">👆</div><div class="txt"></div></div>
 <div id="buddyNote" role="status" aria-live="polite">私は案内役です。<br>アバターの操作はできません。</div>
+<button id="bgmBtn" class="in-hall" type="button" aria-pressed="false">♪ BGM：OFF</button>
 <button id="back" type="button">← もどる</button>
 <button id="detail" type="button">鑑賞はタップ</button>
 <div id="pad"><button data-r="1" class="rot" aria-label="左に45度まわる">↺</button><button data-k="w" aria-label="前へ進む">▲</button><button data-r="-1" class="rot" aria-label="右に45度まわる">↻</button><button data-k="a" aria-label="左へ進む">◀</button><button data-k="s" aria-label="後ろへ進む">▼</button><button data-k="d" aria-label="右へ進む">▶</button></div>
@@ -380,7 +390,7 @@ box(FW+.8, .35, 1.4, CREAM2, 0, FH+.17, .2);
     g.textAlign='center'; g.textBaseline='middle';
     g.fillStyle='#8f7230'; g.font=`italic ${h*.17}px ${SERIF}`; g.fillText('The Yarigai Gallery', w/2, h*.17);
     // タイトルと版(通常版の看板と同じく、タイトルの右に小さく)を、まとめて中央にそろえる
-    const TITLE = 'や り が い ギ ャ ラ リ ー', VER = 'v3.1', GAP = h*.1;
+    const TITLE = 'や り が い ギ ャ ラ リ ー', VER = 'v3.2', GAP = h*.1;
     const TF = `bold ${h*.5}px ${SERIF}`, VF = `500 ${h*.2}px Georgia,serif`;
     g.font = TF; const tw = g.measureText(TITLE).width;
     g.font = VF; const vw = g.measureText(VER).width;
@@ -480,6 +490,86 @@ scene.add(motes);
 // ラグ
 box(4,.02,HL-2,mat(0xdccfae),0,.025,-HL/2);
 box(3.6,.03,HL-2.4,mat(0xe9dec0),0,.03,-HL/2);
+
+
+/* ---------- Cafe preview: decorative figures, no networking or interaction ---------- */
+const CAFE = {x:-3.6, z:-10.5, radius:1.35};
+const cafe = (()=>{
+  const g=new THREE.Group(); g.name='cafe-preview'; g.position.set(CAFE.x,0,CAFE.z); scene.add(g);
+  const sphere=new THREE.SphereGeometry(1,LOW?10:14,LOW?8:10);
+  const cylinder=new THREE.CylinderGeometry(1,1,1,LOW?12:20);
+  const wood=mat(0xcbb08b), cream=mat(0xfff5df), skin=mat(0xf2d5bf), hair=mat(0x453d38), pants=mat(0x777f88);
+  const shirts=[mat(0xc8b9de),mat(0xe8baa8),mat(0xb9d4bd)];
+  function part(geo,m,x,y,z,sx,sy,sz,parent=g){
+    const o=new THREE.Mesh(geo,m); o.position.set(x,y,z); o.scale.set(sx,sy,sz); parent.add(o); return o;
+  }
+  part(cylinder,wood,0,.39,0,.12,.78,.12);
+  part(cylinder,wood,0,.07,0,.43,.1,.43);
+  part(cylinder,cream,0,.8,0,.66,.09,.66);
+  const seats=[.3,2.4,4.5];
+  seats.forEach((a,i)=>{
+    const person=new THREE.Group(); person.position.set(Math.sin(a)*.95,0,Math.cos(a)*.95); person.rotation.y=a+Math.PI; g.add(person);
+    part(cylinder,wood,0,.38,0,.3,.1,.3,person);
+    part(cylinder,wood,0,.18,0,.07,.36,.07,person);
+    part(sphere,wood,0,.59,-.2,.3,.3,.07,person);
+    part(sphere,shirts[i],0,.69,0,.24,.29,.19,person);
+    part(sphere,skin,0,1.12,0,.23,.24,.22,person);
+    // Short, bob and swept hair silhouettes; shared low-resolution geometry.
+    part(sphere,hair,0,1.24,-.04,.24,.14,i===1?.23:.2,person);
+    if(i===1) part(sphere,hair,0,1.09,-.14,.24,.22,.1,person);
+    if(i===2) part(sphere,hair,.08,1.28,.04,.17,.1,.16,person);
+    [-1,1].forEach(side=>{
+      part(sphere,shirts[i],side*.25,.69,.12,.07,.19,.08,person).rotation.x=-.65;
+      part(sphere,skin,side*.25,.58,.23,.065,.065,.065,person);
+      part(sphere,pants,side*.12,.4,.17,.1,.09,.24,person);
+      part(cylinder,pants,side*.12,.23,.33,.075,.33,.075,person);
+      part(sphere,cream,side*.12,.07,.38,.09,.065,.15,person);
+      part(sphere,hair,side*.075,1.13,.204,.02,.025,.012,person);
+    });
+    const x=Math.sin(a)*.39,z=Math.cos(a)*.39;
+    part(cylinder,cream,x,.87,z,.095,.04,.095);
+    part(cylinder,shirts[i],x,.94,z,.064,.12,.064);
+    part(cylinder,hair,x,1.002,z,.051,.002,.051);
+  });
+  g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=false;}});
+  return g;
+})();
+// A small circular exclusion zone. Keep paths outside it, including automatic returns.
+function cafeSegmentClear(a,b,r=CAFE.radius){
+  const dx=b.x-a.x,dz=b.z-a.z,len=dx*dx+dz*dz;
+  const t=len?Math.max(0,Math.min(1,((CAFE.x-a.x)*dx+(CAFE.z-a.z)*dz)/len)):0;
+  return Math.hypot(a.x+t*dx-CAFE.x,a.z+t*dz-CAFE.z)>=r-1e-8;
+}
+function cafeSafePoint(p){
+  const dx=p.x-CAFE.x,dz=p.z-CAFE.z,d=Math.hypot(dx,dz);
+  if(d<CAFE.radius){p.x=CAFE.x+(d?dx/d:1)*(CAFE.radius+.001);p.z=CAFE.z+(d?dz/d:0)*(CAFE.radius+.001);}
+  return p;
+}
+function cafeRoute(a,b){
+  if(cafeSegmentClear(a,b)) return [b.clone()];
+  const nodes=[a.clone(),cafeSafePoint(b.clone())],n=12,r=CAFE.radius/Math.cos(Math.PI/n)+.025;
+  for(let i=0;i<n;i++){const angle=i*2*Math.PI/n;nodes.push(new THREE.Vector3(CAFE.x+Math.cos(angle)*r,a.y,CAFE.z+Math.sin(angle)*r));}
+  const dist=nodes.map(()=>Infinity),prev=nodes.map(()=>-1),used=new Set();dist[0]=0;
+  for(let k=0;k<nodes.length;k++){
+    let u=-1;for(let i=0;i<nodes.length;i++)if(!used.has(i)&&(u<0||dist[i]<dist[u]))u=i;
+    if(u===1||!Number.isFinite(dist[u]))break;used.add(u);
+    for(let v=1;v<nodes.length;v++)if(!used.has(v)&&cafeSegmentClear(nodes[u],nodes[v])){
+      const d=dist[u]+Math.hypot(nodes[u].x-nodes[v].x,nodes[u].z-nodes[v].z);
+      if(d<dist[v]){dist[v]=d;prev[v]=u;}
+    }
+  }
+  if(prev[1]<0)return [a.clone()];
+  const route=[];for(let i=1;i!==0;i=prev[i])route.unshift(nodes[i]);
+  return route;
+}
+function cafeStep(current,desired){
+  const end=cafeSafePoint(desired.clone());
+  if(cafeSegmentClear(current,end)){current.copy(end);return;}
+  const route=cafeRoute(current,end),next=route[0];
+  const step=Math.hypot(desired.x-current.x,desired.z-current.z),distance=current.distanceTo(next);
+  current.lerp(next,Math.min(1,step/Math.max(distance,1e-8)));
+}
+/* ---------- End Cafe preview ---------- */
 
 /* ---------- 3つの扉と展示室 ---------- */
 const NARROW = innerWidth < innerHeight;   // 縦長の画面(スマホ)。扉の看板・札を大きくする
@@ -677,7 +767,14 @@ function tween(ms, fn){
 const angDiff = (a,b)=>{ let d=(b-a)%(Math.PI*2); if(d>Math.PI) d-=Math.PI*2; if(d<-Math.PI) d+=Math.PI*2; return d; };
 function moveCam(to, toYaw, toPitch, ms){
   const p0 = pos.clone(), y0 = yaw, pi0 = pitch, dy = angDiff(y0,toYaw);
-  return tween(ms, k=>{ pos.lerpVectors(p0,to,k); yaw=y0+dy*k; pitch=pi0+(toPitch-pi0)*k; });
+  const route=[p0,...cafeRoute(p0,to)], lengths=route.slice(1).map((p,i)=>p.distanceTo(route[i]));
+  const total=lengths.reduce((a,b)=>a+b,0);
+  return tween(ms, k=>{
+    let distance=total*k, i=0;
+    while(i<lengths.length-1 && distance>lengths[i]){distance-=lengths[i];i++;}
+    pos.lerpVectors(route[i],route[i+1],lengths[i]?distance/lengths[i]:1);
+    pos.y=p0.y+(to.y-p0.y)*k; yaw=y0+dy*k; pitch=pi0+(toPitch-pi0)*k;
+  });
 }
 
 const $ = id => document.getElementById(id);
@@ -789,9 +886,6 @@ function pauseBgm(){ bgm.pause(); setBgmLabel(false); }
 function setBgmZone(zone){
   bgmZone = zone;
   if(zone==='room'){ bgmWanted=false; pauseBgm(); }
-  const inHall = zone!=='outside';
-  (inHall ? document.body : $('intro')).appendChild(bgmBtn);
-  bgmBtn.classList.toggle('in-hall', inHall);
   bgmBtn.hidden = zone==='room' || !!bgm.error;
 }
 bgmBtn.onclick = ()=>{
@@ -909,11 +1003,13 @@ const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
 function doorAt(e){
   ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
   const hit = ray.intersectObjects(doors.flatMap(d=>[d.leaf,d.inset,d.plaque,d.arrow]), false)[0];
-  return hit ? hit.object.userData.door : -1;
+  const decor=ray.intersectObject(cafe,true)[0];
+  return hit && (!decor || hit.distance<decor.distance) ? hit.object.userData.door : -1;
 }
 function buddyAt(e){
   ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
-  return ray.intersectObjects(buddy.hitMeshes, false).length > 0;
+  const hit=ray.intersectObjects(buddy.hitMeshes,false)[0], decor=ray.intersectObject(cafe,true)[0];
+  return !!hit && (!decor || hit.distance<decor.distance);
 }
 renderer.domElement.addEventListener('pointerdown', e=>{ drag = {x:e.clientX,y:e.clientY,moved:false}; renderer.domElement.setPointerCapture(e.pointerId); });
 renderer.domElement.addEventListener('pointermove', e=>{
@@ -1146,8 +1242,11 @@ function updateBuddy(dt, t){
     target.z = Math.max(HALL_BACK-d+.5, Math.min(HALL_BACK-.6, target.z));
   }
   // 少し遅れてついてくる
-  b.position.x += (target.x - b.position.x) * (1 - Math.exp(-dt*rate));
-  b.position.z += (target.z - b.position.z) * (1 - Math.exp(-dt*rate));
+  const buddyNext=b.position.clone();
+  const buddyWaypoint=cafeRoute(b.position,target)[0];
+  buddyNext.x += (buddyWaypoint.x-b.position.x)*(1-Math.exp(-dt*rate));
+  buddyNext.z += (buddyWaypoint.z-b.position.z)*(1-Math.exp(-dt*rate));
+  cafeStep(b.position,buddyNext);
   b.position.y += (stepHeight(b.position.x, b.position.z) - b.position.y) * (1 - Math.exp(-dt*10));
   // 速さから歩き方を決める
   const vx = (b.position.x - buddyPrev.x)/Math.max(dt,1e-3), vz = (b.position.z - buddyPrev.z)/Math.max(dt,1e-3);
@@ -1220,8 +1319,10 @@ renderer.setAnimationLoop(t=>{
     if(f||s){
       if(mode==='viewing') exitViewing();
       const sp = 3*dt;
-      pos.x += (-Math.sin(yaw)*f + Math.cos(yaw)*s)*sp;
-      pos.z += (-Math.cos(yaw)*f - Math.sin(yaw)*s)*sp;
+      const next=pos.clone();
+      next.x += (-Math.sin(yaw)*f + Math.cos(yaw)*s)*sp;
+      next.z += (-Math.cos(yaw)*f - Math.sin(yaw)*s)*sp;
+      cafeStep(pos,next);
       if(mode==='hall'){ pos.x = Math.max(-FW/2+.8, Math.min(FW/2-.8, pos.x)); pos.z = Math.max(HALL_BACK+1.2, Math.min(-.8, pos.z)); }
       else { const cx = doors[roomIdx].t.cx; pos.x = Math.max(cx-ROOM_W/2+.5, Math.min(cx+ROOM_W/2-.5, pos.x)); pos.z = Math.max(HALL_BACK-doors[roomIdx].t.depth+.5, Math.min(HALL_BACK-.6, pos.z)); }
     }
