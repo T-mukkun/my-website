@@ -738,6 +738,45 @@ function outsidePoint(){
     }
     distance*=1.06;
   }
+  // スマホ縦画面だけ、文字の実際の範囲を避けながら約15%大きくする。
+  // 太陽・タイトル下の飾り線は配置制約に含めない。
+  if(portrait() && innerWidth<=640 && matchMedia('(pointer:coarse)').matches){
+    const catchphrase=title.querySelector('.gallery-catchphrase');
+    const phoneTop=catchphrase ? title.offsetTop+catchphrase.offsetTop+catchphrase.offsetHeight+12 : top;
+    const phoneBottom=bottom+Math.max(0,parseFloat(getComputedStyle(intro).paddingTop)||0);
+    const aspect=innerWidth/innerHeight;
+    function phoneFit(d){
+      let lo=-.6,hi=.6;
+      function projected(a){
+        const points=[];
+        // 正面の軒・屋根頂点・階段。存在しない「屋根の高さの階段先端」は除く。
+        for(const x of [-7.4,7.4]) for(const y of [0,5.85]) points.push([x,y,.9]);
+        points.push([0,8.05,.75],[-4.4,-.1,3.55],[4.4,-.1,3.55]);
+        let t=Infinity,b=-Infinity,width=0;
+        for(const [x,y,z] of points){
+          const dy=y-2.5,dz=z-d;
+          const cy=Math.cos(a)*dy+Math.sin(a)*dz,cz=-Math.sin(a)*dy+Math.cos(a)*dz;
+          const py=innerHeight*(.5-cy/(-cz)/tan/2);
+          t=Math.min(t,py);b=Math.max(b,py);
+          width=Math.max(width,Math.abs(x/(-cz)/tan/aspect));
+        }
+        return {top:t,bottom:b,width};
+      }
+      const center=(phoneTop+phoneBottom)/2;
+      for(let j=0;j<36;j++){
+        const mid=(lo+hi)/2,p=projected(mid);
+        if((p.top+p.bottom)/2<center)lo=mid;else hi=mid;
+      }
+      const a=(lo+hi)/2,p=projected(a);
+      return {angle:a,ok:p.top>=phoneTop && p.bottom<=phoneBottom && p.width<=.96};
+    }
+    let near=Math.max(16,distance/1.15),far=Math.max(near, distance);
+    while(!phoneFit(far).ok && far<1000)far*=1.1;
+    if(phoneFit(far).ok && far<=distance){
+      for(let j=0;j<36;j++){const mid=(near+far)/2;if(phoneFit(mid).ok)far=mid;else near=mid;}
+      return {p:new THREE.Vector3(0,2.5,far),pitch:phoneFit(far).angle,yaw:outsideYaw()};
+    }
+  }
   return {p:new THREE.Vector3(0,2.5,distance),pitch:angle,yaw:outsideYaw()};
 }
 const interiorFov = ()=>innerWidth>=innerHeight ? 60 : Math.min(98,2*Math.atan(Math.tan(35*Math.PI/180)/(innerWidth/innerHeight))*180/Math.PI);
