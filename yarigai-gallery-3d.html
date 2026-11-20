@@ -256,7 +256,7 @@
   <button id="howtoStart" type="button">はじめる</button>
 </div></div>
 <div id="swipe" aria-hidden="true"><div class="hand">👆</div><div class="txt"></div></div>
-<div id="buddyNote" role="status" aria-live="polite">私は案内役です。<br>アバターの操作はできません。</div>
+<div id="buddyNote" role="status" aria-live="polite">私は案内役のちゃくろうです。<br>アバターの操作はできません。</div>
 <button id="bgmBtn" class="in-hall" type="button" aria-pressed="false">♪ BGM：OFF</button>
 <button id="back" type="button">← もどる</button>
 <button id="detail" type="button">鑑賞はタップ</button>
@@ -826,7 +826,7 @@ function moveCam(to, toYaw, toPitch, ms){
 const $ = id => document.getElementById(id);
 const hint = $('hint'), pad = $('pad');
 let buddyNoteTimer = 0;
-function showBuddyNote(message = '私は案内役です。アバターの操作はできません。', duration = 4500, kind = 'intro'){
+function showBuddyNote(message = '私は案内役のちゃくろうです。アバターの操作はできません。', duration = 4500, kind = 'intro'){
   const note = $('buddyNote');
   note.textContent = message; note.dataset.kind = kind;
   note.classList.add('on');
