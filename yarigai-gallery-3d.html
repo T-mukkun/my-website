@@ -112,9 +112,13 @@
   #modal .card{position:relative;max-width:560px;max-height:100%;overflow:auto;background:#fffdf6;border:2px solid var(--gold);border-radius:14px;padding:18px 18px 14px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
   #modal img{display:block;width:100%;height:auto;border-radius:6px}
   #modal h2{margin:12px 0 6px;font-size:18px;letter-spacing:.08em}
-  #mtoggle{display:block;margin:8px 0;padding:8px 16px;border-radius:999px;background:#fff;border:1.5px solid var(--gold);font-size:14px;color:var(--ink)}
-  #mtoggle span{display:inline-block;transition:transform .2s;font-size:11px}
-  #mtoggle[aria-expanded="true"] span{transform:rotate(180deg)}
+  #mactions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+  #mtoggle,#mmusic{display:block;margin:0;padding:8px 16px;border-radius:999px;background:#fff;border:1.5px solid var(--gold);font-size:14px;color:var(--ink)}
+  #mtoggle span,#mmusic span{display:inline-block;transition:transform .2s;font-size:11px}
+  #mtoggle[aria-expanded="true"] span,#mmusic[aria-expanded="true"] span{transform:rotate(180deg)}
+  #mmusicbox{margin:0 0 10px;padding:12px;border-left:3px solid #9fb39a;background:#f1f5ec;border-radius:4px}
+  #mmusicbox audio{display:block;width:100%;height:40px;margin-bottom:10px}
+  #mmusicbox .mcredit{display:block;text-align:right;font-size:11px}
   #modal p{margin:0 0 8px;font-size:14px;line-height:1.8;white-space:pre-wrap}
   #modal small{color:#8a9a8f}
   #mclose{position:sticky;top:0;float:right;margin:-6px -6px 6px 6px;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--gold);font-size:12px}
@@ -258,7 +262,7 @@
 <button id="detail" type="button">鑑賞はタップ</button>
 <div id="pad"><button data-r="1" class="rot" aria-label="左に45度まわる">↺</button><button data-k="w" aria-label="前へ進む">▲</button><button data-r="-1" class="rot" aria-label="右に45度まわる">↻</button><button data-k="a" aria-label="左へ進む">◀</button><button data-k="s" aria-label="後ろへ進む">▼</button><button data-k="d" aria-label="右へ進む">▶</button></div>
 
-<div id="modal"><div class="card"><button id="mclose">✕ とじる</button><img id="mimg" alt=""><button id="mtoggle" type="button" aria-expanded="false" aria-controls="mcomment">アンカーストーリー（作者コメント） <span>▼</span></button><p id="mcomment" hidden></p><small id="mdate"></small></div></div>
+<div id="modal"><div class="card"><button id="mclose">✕ とじる</button><img id="mimg" alt=""><div id="mactions"><button id="mtoggle" type="button" aria-expanded="false" aria-controls="mcomment">アンカーストーリー（作者コメント） <span>▼</span></button><button id="mmusic" type="button" aria-expanded="false" aria-controls="mmusicbox">♪ 曲を聴く <span>▼</span></button></div><p id="mcomment" hidden></p><div id="mmusicbox" hidden><p id="mmtitle"></p><audio id="maudio" controls preload="none"></audio><p id="mlyrics"></p><small class="mcredit">曲と歌詞はAIで作成しました。</small></div><small id="mdate"></small></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="gallery/works.js"></script>
@@ -1100,13 +1104,25 @@ function openWork(w){
   $('mimg').src = imgUrl(w); $('mimg').alt = w.alt;
 $('mcomment').textContent = w.comment || ''; $('mcomment').hidden = true;
   $('mtoggle').setAttribute('aria-expanded','false'); $('mtoggle').style.display = w.comment ? 'block' : 'none'; $('mdate').textContent = w.date ? `公開日 ${w.date}` : '';
+  const m = w.music && w.music.src ? w.music : null, audio = $('maudio');
+  audio.pause(); $('mmusicbox').hidden = true; $('mmusic').setAttribute('aria-expanded','false'); $('mmusic').style.display = m ? 'block' : 'none';
+  if(m){
+    $('mmtitle').textContent = `♪ ${m.title || ''}`; $('mlyrics').textContent = m.lyrics || '';
+    audio.setAttribute('aria-label', `${m.title || '作品の曲'}を再生`);
+    if(audio.getAttribute('src') !== m.src) audio.src = m.src;
+  } else { audio.removeAttribute('src'); audio.load(); }
   $('modal').classList.add('on');
 }
 $('mtoggle').onclick = ()=>{
   const open = $('mcomment').hidden; $('mcomment').hidden = !open; $('mtoggle').setAttribute('aria-expanded', open?'true':'false');
 };
-$('mclose').onclick = ()=> $('modal').classList.remove('on');
-$('modal').addEventListener('click', e=>{ if(e.target.id==='modal') $('modal').classList.remove('on'); });
+$('mmusic').onclick = ()=>{
+  const open = $('mmusicbox').hidden; $('mmusicbox').hidden = !open; $('mmusic').setAttribute('aria-expanded', open?'true':'false');
+  if(!open) $('maudio').pause();
+};
+function closeWork(){ $('maudio').pause(); $('modal').classList.remove('on'); }
+$('mclose').onclick = closeWork;
+$('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeWork(); });
 
 const keys = {};
 const padPointers = new Map();

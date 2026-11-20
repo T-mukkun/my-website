@@ -132,11 +132,17 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
 .work{max-width:460px;margin:0 auto 26px;background:#fffdf7;border:1px solid #d6cdb4;border-radius:6px;padding:14px 12px 12px;box-shadow:0 8px 22px #37524622;scroll-margin-top:12px}
 .work-image{display:block;width:100%;height:auto;border-radius:2px}
 .work-date{display:block;margin-top:4px;text-align:right;font:11px Georgia,serif;letter-spacing:.08em;color:#7b6942}
-.comment-toggle{display:flex;align-items:center;gap:6px;margin:14px auto 0;border:1px solid #b8ad93;background:#f6f1e3;color:#5d5136;border-radius:999px;padding:6px 18px;font:inherit;font-size:13px;line-height:1.4;cursor:pointer}
+.work-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.comment-toggle{display:flex;align-items:center;gap:6px;margin:0;border:1px solid #b8ad93;background:#f6f1e3;color:#5d5136;border-radius:999px;padding:6px 18px;font:inherit;font-size:13px;line-height:1.4;cursor:pointer}
 .comment-toggle:hover{background:#e9dfc6}
 .comment-toggle .chev{display:inline-block;transition:transform .3s;font-size:10px}
 .comment-toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
 .work-comment{margin:10px 2px 0;padding:10px 12px;border-left:3px solid #b8ad93;background:#f8f4e8;font-size:14px;line-height:1.9;white-space:pre-line}
+.work-music{margin:10px 2px 0;padding:12px;border-left:3px solid #9fb39a;background:#f1f5ec}
+.music-title{margin:0 0 8px;font-family:'Yu Mincho','Hiragino Mincho ProN',serif;font-weight:normal;font-size:16px;letter-spacing:.06em;color:#31473f}
+.work-music audio{display:block;width:100%;height:40px}
+.music-lyrics{margin:12px 0 0;font-size:14px;line-height:1.9;white-space:pre-line;color:#3c463f}
+.music-credit{display:block;margin-top:8px;text-align:right;font-size:11px;color:#7a8279}
 .work-note{margin:12px 0 0;text-align:center;font-size:11px;color:#7a8279;line-height:1.6}
 </style>
 </head>
@@ -289,14 +295,32 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
     var img=el('img','work-image');img.src=w.image;img.alt=w.alt||'4コマ漫画';img.decoding='async';img.loading='lazy';
     art.appendChild(img);
     var t=el('time','work-date',(w.date||'').replace(/-/g,'.'));t.dateTime=w.date||'';art.appendChild(t);
-    if(w.comment){
+    var actions=el('div','work-actions'),panels=[];
+    function addToggle(label,box,onClose){
       var btn=el('button','comment-toggle');btn.type='button';
-      btn.innerHTML='アンカーストーリー（作者コメント） <span class="chev" aria-hidden="true">▼</span>';
-      var box=el('div','work-comment',w.comment);box.id=w.id+'-comment';box.hidden=true;
-      btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-controls',box.id);
-      btn.addEventListener('click',function(){var open=box.hidden;box.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false');});
-      art.appendChild(btn);art.appendChild(box);
+      btn.innerHTML=label+' <span class="chev" aria-hidden="true">▼</span>';
+      box.hidden=true;btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-controls',box.id);
+      btn.addEventListener('click',function(){
+        var open=box.hidden;box.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false');
+        if(!open&&onClose)onClose();
+      });
+      actions.appendChild(btn);panels.push(box);
     }
+    if(w.comment){
+      var box=el('div','work-comment',w.comment);box.id=w.id+'-comment';
+      addToggle('アンカーストーリー（作者コメント）',box);
+    }
+    if(w.music&&w.music.src){
+      var mbox=el('div','work-music');mbox.id=w.id+'-music';
+      mbox.appendChild(el('p','music-title','♪ '+(w.music.title||'')));
+      var audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.src=w.music.src;
+      audio.setAttribute('aria-label',(w.music.title||'作品の曲')+'を再生');
+      mbox.appendChild(audio);
+      if(w.music.lyrics)mbox.appendChild(el('p','music-lyrics',w.music.lyrics));
+      mbox.appendChild(el('small','music-credit','曲と歌詞はAIで作成しました。'));
+      addToggle('♪ 曲を聴く',mbox,function(){audio.pause();});
+    }
+    if(panels.length){art.appendChild(actions);panels.forEach(function(p){art.appendChild(p);});}
     art.appendChild(el('p','work-note','この作品は研究知見に基づく創作（フィクション）です。'));
     return art;
   }
@@ -306,14 +330,20 @@ button:focus-visible{outline:3px solid #97671d;outline-offset:3px}
     roomPanel.dataset.area=area;
     roomTitle.textContent=portal.dataset.name+'の部屋';
     roomEn.textContent=portal.querySelector('.portal-label b').textContent.toUpperCase();
-    roomWorks.innerHTML='';
+    pauseAll();roomWorks.innerHTML='';
     worksIn(area).forEach(function(w){roomWorks.appendChild(renderWork(w));});
     roomPanel.classList.add('open');stage.classList.add('in-room');
     var target=workId&&document.getElementById(workId);
     if(target){target.scrollIntoView();}else{roomPanel.scrollTop=0;}
     roomTitle.focus({preventScroll:true});
   }
+  function pauseAll(except){
+    Array.prototype.forEach.call(roomWorks.querySelectorAll('audio'),function(a){if(a!==except)a.pause();});
+  }
+  /* 曲は同時に1つだけ鳴らす */
+  roomWorks.addEventListener('play',function(e){pauseAll(e.target);},true);
   function closeRoom(){
+    pauseAll();
     roomPanel.classList.remove('open');stage.classList.remove('in-room');
     if(lastPortal)lastPortal.focus({preventScroll:true});
   }
